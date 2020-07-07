@@ -1,0 +1,52 @@
+{
+  "name": "client",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "algolia-places-react": "^1.5.1",
+    "algoliasearch": "^4.2.0",
+    "bootstrap": "^4.4.1",
+    "eslint-plugin-flowtype": "^4.7.0",
+    "http-proxy-middleware": "^1.0.3",
+    "moment": "2.24.0",
+    "prop-types": "^15.7.2",
+    "query-string": "^6.13.1",
+    "rc-slider": "^9.2.4",
+    "react": "^16.13.1",
+    "react-avatar-edit": "^0.8.3",
+    "react-avatar-editor": "^11.0.9",
+    "react-bootstrap": "^1.0.0-beta.16",
+    "react-date-picker": "^8.0.1",
+    "react-datepicker": "^2.16.0",
+    "react-dnd": "^6.0.0",
+    "react-dnd-html5-backend": "^10.0.2",
+    "react-dom": "^16.13.1",
+    "react-dropzone": "^11.0.1",
+    "react-google-login": "^5.1.10",
+    "react-instantsearch-dom": "^6.5.0",
+    "react-linkedin-login-oauth2": "^1.0.7",
+    "react-router-dom": "^5.1.2",
+    "react-scripts": "^3.4.0",
+    "react-select": "^3.1.0",
+    "react-tag-input": "^6.4.2",
+    "socket.io-client": "^2.3.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

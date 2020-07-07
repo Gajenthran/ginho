@@ -1,0 +1,104 @@
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2.5rem;
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+    position: sticky;
+  }
+  
+  .navbar-sticky {
+    background: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    box-shadow: 1px 1px 1px grey;
+    animation: moveDown 0.5s ease-in-out;
+  }
+  
+  #account-link {
+    border-radius: 25px;
+    padding: 10px;
+    vertical-align: -20%;
+    background: transparent linear-gradient(0deg, #0B2BB1 0%, #1206A0 100%) 0% 0% no-repeat padding-box;
+  }
+  
+  #account-link-item {
+    margin-right: -20px;
+    cursor: pointer;
+    -webkit-transform: perspective(1px) translateZ(0);
+    transform: perspective(1px) translateZ(0);
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+    -webkit-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+    -webkit-transition-property: transform;
+    transition-property: transform;
+  }
+  
+  #account-link-item:active {
+    -webkit-transform: scale(.9);
+    transform: scale(.9);
+  }
+  
+  #account-link span {
+    color: white;
+  }
+  
+  .fa-user-circle {
+    font-size: 20px;
+    color: white;
+    vertical-align: -5%;
+  }
+  
+  .fa-bars {
+    font-size: 20px;
+    color: #1206A0;
+    vertical-align: -30%;
+  }
+  
+  
+  .navbar--link {
+    display: flex;
+    flex-direction: row;
+    list-style: none;
+    margin:0;
+  }
+  
+  .navbar--link-item {
+    margin: 0 0;
+    padding: 1.5rem 1rem;
+    cursor: pointer;
+    /* font-weight: bold; */
+  }
+  
+  .navbar--link-item span {
+    font-size: 15px;
+    font-weight: bold;
+  }
+  
+  #account-link:hover {
+    background-color: rgba(255, 255, 255, 0.20);
+  }
+  
+  .navbar--logo-holder h1 {
+    font-size: large;
+    border: 2px solid black;
+    padding: 10px;
+    margin:0;
+  }
+  
+  .navbar--logo-holder a {
+    text-decoration: none;
+    color: black;
+  }
+  
+  @keyframes moveDown {
+    from {
+      transform: translateY(-5rem);
+    }
+    to {
+      transform: translateY(0rem);
+    }
+  }

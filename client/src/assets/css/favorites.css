@@ -1,0 +1,14 @@
+.favorites--page {
+    background-color: rgb(240, 240, 240);
+}
+
+.favorites--container {
+    background-color: white;
+    padding: 30px;
+    margin: 30px;
+    border-radius: 5px;
+}
+
+.favorites--container h3 {
+    margin-bottom: 30px;
+}

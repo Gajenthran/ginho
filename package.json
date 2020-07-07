@@ -1,0 +1,51 @@
+{
+  "name": "diamant-app",
+  "version": "1.0.0",
+  "description": "Diamant game app.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "client": "npm start --prefix client",
+    "server": "nodemon server",
+    "start": "node server",
+    "heroku-postbuild": "cd client && npm install && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gajenthran/diamant.git"
+  },
+  "keywords": [
+    "react"
+  ],
+  "author": "PANCHALINGAMOORTHY Gajenthran",
+  "license": "ISC",
+  "homepage": "https://github.com/Gajenthran/diamant#readme",
+  "devDependencies": {
+    "concurrently": "^3.6.0",
+    "eslint": "^6.8.0",
+    "eslint-plugin-react": "^7.18.3",
+    "moment": "2.24.0",
+    "nodemon": "^1.18.3"
+  },
+  "dependencies": {
+    "@sendgrid/mail": "^7.1.0",
+    "async": "^3.2.0",
+    "bcrypt": "^3.0.8",
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
+    "dotenv": "^6.2.0",
+    "express": "^4.16.3",
+    "generate-password": "^1.5.1",
+    "grpc": "^1.24.2",
+    "jsonwebtoken": "^8.5.1",
+    "mysql": "^2.18.1",
+    "passport": "^0.4.1",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-linkedin-oauth2": "^2.0.0",
+    "pg": "^8.0.0",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2",
+    "socket.io": "^2.3.0",
+    "socket.io-client": "^2.3.0"
+  }
+}
