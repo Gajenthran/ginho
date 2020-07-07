@@ -4,123 +4,111 @@ var Item = require('./item');
 var World = require('./world');
 var Util = require('./global/util'); */
 
+const { Socket } = require("socket.io-client");
+
 class Diamant {
   constructor() {
-    // this.rooms = new Map();
-    this.users = new Map();
+    this.users = [];
+    // this.startGame = false;
   }
 
-  getRoomUsers(secretKey) {
-    let users = [];
-    for (const [key, user] of this.users.entries()) {
-      if (user.secretKey === secretKey)
-        users.push(user);
-    }
-    return users;
+  _hasUser(name, room) {
+    // TODO: change username to email !!
+    return this.users.find(
+      (user) =>
+        user.room == room &&
+        user.name == name
+    );
   }
 
-  duplicateUser(email) {
-    for (const [key, user] of this.users.entries()) {
-      if (user.email == email)
-        return 1;
-    }
-    return 0;
+  _getUsersInRoom(room) {
+    return this.users.filter(
+      (user) => user.room === room
+    );
   }
 
-  addNewPlayer(io, socket, user) {
-    if (!this.duplicateUser(user.email)) {
-      this.users.set(socket.id, user);
-    }
+  _getUser(id) {
+    return this.users.find(
+      (user) =>
+        user.id === id
+    );
+  }
+
+  startGame(io, socket) {
+    console.log('startGame');
+
+    // this.startGame = true;
+
+    console.log(socket.id);
     console.log(this.users);
-    socket.join(user.secretKey);
+    const user = this._getUser(socket.id);
     socket.broadcast
-      .to(user.secretKey)
-      .emit(
-        'message',
-        `${user.firstName} a rejoint la partie.`
-      );
+      .to(user.room)
+      .emit('message', { user: 'admin', text: `${user.name} has joined!` });
 
-    io.to(user.secretKey).emit('room-users', {
-      secretKey: user.secretKey,
-      users: this.getRoomUsers(user.secretKey)
-    });
+    socket.broadcast
+      .to(user.room)
+      .emit('new-game', { room: user.room, users: this._getUsersInRoom(user.room) });
   }
 
-  update() {
-    this.updatePlayers();
-    this.updateItems();
+  sendMessage(io, socket, message) {
+    const user = this._getUser(socket.id);
+
+    io
+      .to(user.room)
+      .emit('message', { user: user.name, text: message });
   }
 
-  updatePlayers() {
-    for (let player of this.players.values()) {
-      this.world.insertSnakeBody(player);
-      player.move(this.world);
-      player.collision(this.world);
-      this.world.insertSnakeHead(player);
-      if (!player.alive)
-        this.removePlayer(player.socket);
+  addUser(io, socket, { name, email, room }) {
+    if (!name || !room)
+      return { error: 'Username and room are required.' };
+
+    if (this._hasUser(name, room))
+      return { error: 'Username is taken.' };
+
+    const user = { id: socket.id, name, email, room };
+
+    this.users.push(user);
+
+    socket.join(user.room);
+
+    socket.emit(
+      'message',
+      { user: 'admin', text: `Welcome ${user.name}.` }
+    );
+
+    socket.broadcast
+      .to(user.room)
+      .emit('message', { user: 'admin', text: `${user.name} has joined!` });
+
+    io
+      .to(user.room)
+      .emit('room-users', { room: user.room, users: this._getUsersInRoom(user.room) });
+  }
+
+  removeUser(io, socket) {
+    const index = this.users.findIndex((user) => user.id == socket.id);
+
+    if (index === -1)
+      return { error: 'No player to remove.' };
+
+    const user = this.users.splice(index, 1)[0];
+
+    if (user) {
+      console.log(`removeUser: ${user.id} - ${user.name}`);
+      io
+        .to(user.room)
+        .emit('message', { user: 'Admin', text: `${user.name} has left.` });
+
+      io
+        .to(user.room)
+        .emit('room-users', { room: user.room, users: this._getUsersInRoom(user.room) });
     }
   }
 
-  updateItems() {
-    if (Item.endOfSpawnTime(this.items.length))
-      this.addNewItem(Item.chooseRandomItem());
-    for (let i = 0; i < this.items.length; i++) {
-      if (this.items[i].use) {
-        this.items.splice(i, 1);
-      }
-    }
-  }
-
-  updatePlayerInput(socket, input) {
-    if (this.players.has(socket.id)) {
-      this.players.get(socket.id).update(input);
-    }
-  }
-
-  removePlayer(io, socket) {
-    if (this.users.has(socket.id)) {
-      let user = this.users.get(socket.id);
-      this.users.delete(socket.id);
-      io.to(user.secretKey).emit('room-users', {
-        secretKey: user.secretKey,
-        users: this.getRoomUsers(user.secretKey)
-      });
-    }
-  }
-
-  removeAllPlayer() {
-    this.players.clear();
-  }
-
-  getEnemies(playerSocket) {
-    var enemies = new Array();
-    for (let enemy of this.players.values())
-      if (enemy.socket.id != playerSocket.id)
-        enemies.push({
-          "body": enemy.body,
-          "score": enemy.score,
-          "dir": Snake.getDir(enemy.dir),
-          "size": enemy.size
-        });
-    return enemies;
-  }
-
-  emitValuesToClient() {
-    var data;
-    for (let player of this.players.values()) {
-      data = {
-        "player": {
-          "body": player.body,
-          "score": player.score,
-          "dir": Snake.getDir(player.dir),
-          "size": player.size
-        },
-        "enemies": this.getEnemies(player.socket),
-        "items": this.items
-      };
-      player.socket.emit("update-players", data);
-    }
+  // TODO: clear all users in the lobby
+  removeAllUser() {
+    this.users = [];
   }
 }
 

@@ -28,18 +28,8 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 app.use(bodyParser.json());
 
-const server = http.Server(app);
-const io = socketIO(server, {
-  handlePreflightRequest: (req, res) => {
-    const headers = {
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      "Access-Control-Allow-Origin": req.headers.origin, //or the specific origin you want to give access to,
-      "Access-Control-Allow-Credentials": true
-    };
-    res.writeHead(200, headers);
-    res.end();
-  }
-});
+const server = http.createServer(app);
+const io = socketIO(server);
 
 app.enable('trust proxy');
 
@@ -68,12 +58,17 @@ if (ENV === 'production') {
 }
 
 io.on('connection', (socket) => {
-  listen(io, socket, 'new-player', diamant.addNewPlayer.bind(diamant));
+  listen(io, socket, 'join', diamant.addUser.bind(diamant));
+  listen(io, socket, 'send-message', diamant.sendMessage.bind(diamant));
+  listen(io, socket, 'start-game', diamant.startGame.bind(diamant));
+  listen(io, socket, 'disconnect', diamant.removeUser.bind(diamant));
+
+  // listen(io, socket, 'new-game', diamant.initGame.bind(diamant));
   // listen(socket, 'player-action', game.updatePlayerInput.bind(game));
-  listen(io, socket, 'disconnect', diamant.removePlayer.bind(diamant));
 });
 
 function listen(io, socket, type, callback) {
+  console.log(`/${type}`);
   socket.on(type, (data) => {
     callback(io, socket, data)
   });
