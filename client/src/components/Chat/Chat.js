@@ -9,8 +9,7 @@ import Input from '../Input/Input';
 
 import './Chat.css';
 
-const Chat = ({ location, name, room }) => {
-  const [users, setUsers] = useState('');
+const Chat = ({ location, name, room, users }) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
 
@@ -19,9 +18,9 @@ const Chat = ({ location, name, room }) => {
       setMessages(messages => [...messages, message]);
     });
 
-    socket.on("room-users", ({ users }) => {
+    /* socket.on("room-users", ({ users }) => {
       setUsers(users);
-    });
+    }); */
   }, []);
 
   const sendMessage = (event) => {

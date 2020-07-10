@@ -1,0 +1,223 @@
+{
+  "cards": [
+    {
+      "id": 1,
+      "name": "gold",
+      "type": 1,
+      "score": 1
+    },
+    {
+      "id": 2,
+      "name": "gold",
+      "type": 1,
+      "score": 2
+    },
+    {
+      "id": 3,
+      "name": "gold",
+      "type": 1,
+      "score": 3
+    },
+    {
+      "id": 4,
+      "name": "gold",
+      "type": 1,
+      "score": 4
+    },
+    {
+      "id": 5,
+      "name": "gold",
+      "type": 1,
+      "score": 5
+    },
+    {
+      "id": 6,
+      "name": "gold",
+      "type": 1,
+      "score": 5
+    },
+    {
+      "id": 7,
+      "name": "gold",
+      "type": 1,
+      "score": 7
+    },
+    {
+      "id": 8,
+      "name": "gold",
+      "type": 1,
+      "score": 7
+    },
+    {
+      "id": 9,
+      "name": "gold",
+      "type": 1,
+      "score": 9
+    },
+    {
+      "id": 10,
+      "name": "gold",
+      "type": 1,
+      "score": 11
+    },
+    {
+      "id": 11,
+      "name": "gold",
+      "type": 1,
+      "score": 11
+    },
+    {
+      "id": 12,
+      "name": "gold",
+      "type": 1,
+      "score": 13
+    },
+    {
+      "id": 13,
+      "name": "gold",
+      "type": 1,
+      "score": 14
+    },
+    {
+      "id": 14,
+      "name": "gold",
+      "type": 1,
+      "score": 15
+    },
+    {
+      "id": 16,
+      "name": "trap",
+      "type": 0,
+      "element": "fire",
+      "score": -1
+    },
+    {
+      "id": 17,
+      "name": "trap",
+      "type": 0,
+      "element": "fire",
+      "score": -1
+    },
+    {
+      "id": 18,
+      "name": "trap",
+      "type": 0,
+      "element": "fire",
+      "score": -1
+    },
+    {
+      "id": 19,
+      "name": "trap",
+      "type": 0,
+      "element": "water",
+      "score": -1
+    },
+    {
+      "id": 20,
+      "name": "trap",
+      "type": 0,
+      "element": "water",
+      "score": -1
+    },
+    {
+      "id": 21,
+      "name": "trap",
+      "type": 0,
+      "element": "water",
+      "score": -1
+    },
+    {
+      "id": 22,
+      "name": "trap",
+      "type": 0,
+      "element": "wind",
+      "score": -1
+    },
+    {
+      "id": 23,
+      "name": "trap",
+      "type": 0,
+      "element": "wind",
+      "score": -1
+    },
+    {
+      "id": 24,
+      "name": "trap",
+      "type": 0,
+      "element": "wind",
+      "score": -1
+    },
+    {
+      "id": 25,
+      "name": "trap",
+      "type": 0,
+      "element": "earth",
+      "score": -1
+    },
+    {
+      "id": 26,
+      "name": "trap",
+      "type": 0,
+      "element": "earth",
+      "score": -1
+    },
+    {
+      "id": 27,
+      "name": "trap",
+      "type": 0,
+      "element": "earth",
+      "score": -1
+    },
+    {
+      "id": 28,
+      "name": "trap",
+      "type": 0,
+      "element": "space",
+      "score": -1
+    },
+    {
+      "id": 29,
+      "name": "trap",
+      "type": 0,
+      "element": "space",
+      "score": -1
+    },
+    {
+      "id": 30,
+      "name": "trap",
+      "type": 0,
+      "element": "space",
+      "score": -1
+    },
+    {
+      "id": 31,
+      "name": "star",
+      "type": 1,
+      "score": 5
+    },
+    {
+      "id": 32,
+      "name": "star",
+      "type": 1,
+      "score": 5
+    },
+    {
+      "id": 33,
+      "name": "star",
+      "type": 1,
+      "score": 5
+    },
+    {
+      "id": 34,
+      "name": "star",
+      "type": 1,
+      "score": 5
+    },
+    {
+      "id": 35,
+      "name": "star",
+      "type": 1,
+      "score": 5
+    }
+  ]
+}

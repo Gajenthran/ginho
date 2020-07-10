@@ -61,10 +61,9 @@ io.on('connection', (socket) => {
   listen(io, socket, 'join', diamant.addUser.bind(diamant));
   listen(io, socket, 'send-message', diamant.sendMessage.bind(diamant));
   listen(io, socket, 'start-game', diamant.startGame.bind(diamant));
+  listen(io, socket, 'update-user', diamant.updateUser.bind(diamant));
+  listen(io, socket, 'restart-game', diamant.restartGame.bind(diamant));
   listen(io, socket, 'disconnect', diamant.removeUser.bind(diamant));
-
-  // listen(io, socket, 'new-game', diamant.initGame.bind(diamant));
-  // listen(socket, 'player-action', game.updatePlayerInput.bind(game));
 });
 
 function listen(io, socket, type, callback) {

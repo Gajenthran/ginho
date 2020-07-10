@@ -1,14 +1,13 @@
-/* var Player = require('./player');
-var Snake = require('./snake');
+var Game = require('./game');
+/* var Snake = require('./snake');
 var Item = require('./item');
 var World = require('./world');
 var Util = require('./global/util'); */
 
-const { Socket } = require("socket.io-client");
-
 class Diamant {
   constructor() {
     this.users = [];
+    this.game = null;
     // this.startGame = false;
   }
 
@@ -19,6 +18,13 @@ class Diamant {
         user.room == room &&
         user.name == name
     );
+  }
+
+  _getUserIndex(id) {
+    for (let i = 0; i < this.users.length; i++)
+      if (this.users[i].id === id)
+        return i;
+    return -1;
   }
 
   _getUsersInRoom(room) {
@@ -35,20 +41,35 @@ class Diamant {
   }
 
   startGame(io, socket) {
-    console.log('startGame');
-
-    // this.startGame = true;
-
-    console.log(socket.id);
-    console.log(this.users);
     const user = this._getUser(socket.id);
     socket.broadcast
       .to(user.room)
       .emit('message', { user: 'admin', text: `${user.name} has joined!` });
 
-    socket.broadcast
+    this.game = new Game(this.users);
+    this.game.drawCard();
+    const gameState = this.game.getGameState();
+    this.users = gameState.users;
+
+    io
       .to(user.room)
-      .emit('new-game', { room: user.room, users: this._getUsersInRoom(user.room) });
+      .emit('new-game', { gameState, room: user.room });
+  }
+
+
+  restartGame(io, socket) {
+    const user = this._getUser(socket.id);
+
+    this.game = new Game(this.users);
+    this.game.drawCard();
+    const gameState = this.game.getGameState();
+    this.users = gameState.users;
+
+    console.log(gameState);
+
+    io
+      .to(user.room)
+      .emit('new-game', { gameState, room: user.room });
   }
 
   sendMessage(io, socket, message) {
@@ -104,6 +125,65 @@ class Diamant {
         .to(user.room)
         .emit('room-users', { room: user.room, users: this._getUsersInRoom(user.room) });
     }
+  }
+
+  updateUser(io, socket, { action }) {
+    if (!(
+      typeof action === 'number' &&
+      (action === 1 || action === 0)
+    )) {
+      console.log('It is not an appropriate action.');
+      return { error: 'It is not an appropriate action.' };
+    }
+
+    const index = this._getUserIndex(socket.id);
+    const user = this.users[index];
+
+    if (user.checked) {
+      console.log('You can\'t two times in the same round.');
+      return { error: 'You can\'t two times in the same round.' };
+    }
+
+    const allChecked = this.game.updateUser(socket.id, action);
+    // console.log(this.users);
+
+    var gameState = this.game.getGameState();
+    this.users = gameState.users;
+    gameState.allChecked = allChecked;
+
+    io
+      .to(user.room)
+      .emit('update-users-action', { gameState, room: user.room });
+
+    if (allChecked) {
+      const { card, dup } = this.game.drawCard();
+      const newRound = this.game.updateGame({ card, dup });
+      gameState = this.game.getGameState();
+
+      io
+        .to(user.room)
+        .emit('update-game', { gameState, room: user.room });
+
+      if (newRound) {
+        this.game._newRound();
+        gameState = this.game.getGameState();
+
+        io
+          .to(user.room)
+          .emit('new-round', { gameState, room: user.room });
+      }
+    }
+
+    if (this.game.end()) {
+      this.game.rankUsers();
+      gameState = this.game.getGameState();
+
+      io
+        .to(user.room)
+        .emit('end-game', { gameState, room: user.room });
+    }
+
+    return { gameState };
   }
 
   // TODO: clear all users in the lobby
