@@ -140,9 +140,14 @@ class Diamant {
     const index = this._getUserIndex(socket.id);
     const user = this.users[index];
 
-    if (user.checked) {
+    if (user && user.checked) {
       console.log('You can\'t two times in the same round.');
       return { error: 'You can\'t two times in the same round.' };
+    }
+
+    if (!this.game && this.game === null) {
+      console.log('Game is not existing.');
+      return { error: 'Game is not existing.' };
     }
 
     const allChecked = this.game.updateUser(socket.id, action);
