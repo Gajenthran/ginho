@@ -45,8 +45,8 @@ const printPath = (req, res, next) => {
 
 var publicDir = require('path').join(__dirname, '/public');
 app.use(express.static(publicDir))
-app.use('/api/lobby', printPath, require('./api/lobby'))
-app.use('/api/user', printPath, require('./api/user'));
+// app.use('/api/lobby', printPath, require('./api/lobby'))
+// app.use('/api/user', printPath, require('./api/user'));
 
 if (ENV === 'production') {
   app.use(express.static(path.join(__dirname, './../client/build')));

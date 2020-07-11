@@ -1,16 +1,39 @@
 const fs = require('fs');
 
 const NB_ROUND = 3;
-const NB_CARDS = 34;
+// const NB_CARDS = 34;
 const LEAVE = 0, CONTINUE = 1;
-const CARDS = JSON.parse(fs.readFileSync(`${__dirname}/cards.json`));
+const CARDS_JSON = JSON.parse(fs.readFileSync(`${__dirname}/cards.json`));
+const CARDS = CARDS_JSON.cards;
 
 class Game {
   constructor(users) {
     this.users = users;
     this.gold = 0;
+    this.star = [];
     this.round = 1;
-    this.cards = CARDS.cards;
+    this.cards = [...CARDS];
+    this.deck = [];
+    this.remainingUsers = this.users.length;
+    this.playedUser = 0;
+
+    for (let i = 0; i < this.users.length; i++) {
+      this.users[i].left = false;
+      this.users[i].checked = false;
+      this.users[i].action = CONTINUE;
+      this.users[i].gold = 0;
+      this.users[i].currentGold = 0;
+    }
+  }
+
+  initGame(users) {
+    console.log(`CARDS length: ${CARDS.length}`);
+    console.log(`cards length: ${this.cards.length}\n`);
+
+    this.users = users;
+    this.gold = 0;
+    this.round = 1;
+    this.cards = [...CARDS];
     this.deck = [];
     this.remainingUsers = this.users.length;
     this.playedUser = 0;
@@ -30,6 +53,7 @@ class Game {
 
   getGameState() {
     // TODO: remove users values
+    console.log(`nbCards: ${this.cards.length}`);
     return {
       gold: this.gold,
       round: this.round,
@@ -42,7 +66,7 @@ class Game {
 
   _newRound() {
     this.gold = 0;
-    this.cards = CARDS.cards;
+    this.cards = [...CARDS];
     this.deck = [];
     this.remainingUsers = this.users.length;
     this.playedUser = 0;
@@ -97,8 +121,7 @@ class Game {
     index = index < 0 ? 0 : index;
     const card = this.cards[index];
 
-    console.log(index);
-    console.log(card);
+    console.log(`Drawn card: ${index}`);
     const dup = card.type === 0 && this._hasDuplicates(card);
 
     this.deck.push(card);
@@ -107,46 +130,57 @@ class Game {
     return { card, dup };
   }
 
-  updateGame({ card, dup }) {
-    let remainingUsers = this._remainingUser();
+  _leavingUsers(users) {
+    return users.filter(
+      (user) => user.action === LEAVE
+    );
+  }
 
-    remainingUsers.map(user => {
-      const index = this._getUserIndex(user.id);
-      if (index !== -1 && this.users[index].action === LEAVE) {
-        this.users[index].left = true;
-        this.users[index].gold += this.users[index].currentGold;
-        this.remainingUsers--;
-      }
-    });
+  updateGame({ card, dup }) {
+    let leavingUsers = this._leavingUsers(this._remainingUser());
+
+    if (leavingUsers.length !== 0) {
+      let sharedStar = leavingUsers.length === 1 ?
+        this.star.length * 5 : 0;
+      let sharedGold = 0;
+
+      sharedGold += Math.floor(this.gold / leavingUsers.length);
+      this.gold -= sharedGold * leavingUsers.length;
+
+      leavingUsers.map(user => {
+        user.left = true;
+        user.currentGold += sharedGold + sharedStar;
+        user.gold += user.currentGold;
+      });
+
+      if (leavingUsers.length === 1) this.star = [];
+    }
+
+    this.remainingUsers -= leavingUsers.length;
 
     if (!this._hasRemainingUsers()) {
       console.log('No remaining player.')
-      // this._newRound();
       return true;
     }
 
     if (dup) {
       console.log('Duplicated card. You loose.');
-      // this._newRound();
       return true;
     }
 
-    // TODO: better iteration
-    remainingUsers = this._remainingUser();
+    this.gold += card.name === 'gold' ? card.score : 0;
+    if (card.name === 'star') this.star.push(card);
 
-    var sharedGold = 0;
-    if (card.name !== 'trap') {
-      this.gold += card.score;
-      sharedGold = Math.floor(this.gold / remainingUsers.length);
-      this.gold -= sharedGold * remainingUsers.length;
-    }
+    // TODO: better iteration
+    let sharedGold = 0;
+    let remainingUsers = this._remainingUser();
+
+    sharedGold = Math.floor(this.gold / remainingUsers.length);
+    this.gold -= sharedGold * remainingUsers.length;
 
     remainingUsers.map(user => {
-      const index = this._getUserIndex(user.id);
-      if (index !== -1) {
-        this.users[index].currentGold += sharedGold
-        this.users[index].checked = false;
-      }
+      user.currentGold += sharedGold;
+      user.checked = false;
     });
 
     this.playedUser = 0;
@@ -155,7 +189,7 @@ class Game {
   }
 
   rankUsers() {
-    this.users.sort((u1, u2) => u1.gold > u2.gold ? 1 : -1);
+    this.users.sort((u1, u2) => u1.gold < u2.gold ? 1 : -1);
   }
 
   updateUser(id, action) {
