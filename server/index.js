@@ -3,22 +3,22 @@ const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const url = require('url');
-const passport = require('passport');
+// const url = require('url');
+// const passport = require('passport');
 const socketIO = require('socket.io');
 
 const diamant = require('./core/diamant');
 
 require('dotenv').config();
-require('./config/passport-setup');
+// require('./config/passport-setup');
 
-passport.serializeUser((user, cb) => {
+/* passport.serializeUser((user, cb) => {
   cb(null, user);
 });
 
 passport.deserializeUser((user, cb) => {
   cb(null, user);
-});
+}); */
 
 const ENV = process.env.NODE_ENV;
 const PORT = process.env.PORT || 8080;
@@ -34,19 +34,19 @@ const io = socketIO(server);
 app.enable('trust proxy');
 
 app.use(cors());
-app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.initialize());
+// app.use(passport.session());
 
-const printPath = (req, res, next) => {
+/* const printPath = (req, res, next) => {
   var path = url.parse(req.url).pathname;
   console.log(path);
   next();
-};
+}; */
 
 var publicDir = require('path').join(__dirname, '/public');
 app.use(express.static(publicDir))
-app.use('/api/lobby', printPath, require('./api/lobby'))
-app.use('/api/user', printPath, require('./api/user'));
+// app.use('/api/lobby', printPath, require('./api/lobby'))
+// app.use('/api/user', printPath, require('./api/user'));
 
 if (ENV === 'production') {
   app.use(express.static(path.join(__dirname, './../client/build')));

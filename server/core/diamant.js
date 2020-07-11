@@ -46,6 +46,7 @@ class Diamant {
       .to(user.room)
       .emit('message', { user: 'admin', text: `${user.name} has joined!` });
 
+    this.game = null;
     this.game = new Game(this.users);
     this.game.drawCard();
     const gameState = this.game.getGameState();
@@ -60,7 +61,7 @@ class Diamant {
   restartGame(io, socket) {
     const user = this._getUser(socket.id);
 
-    this.game = new Game(this.users);
+    this.game.initGame(this.users);
     this.game.drawCard();
     const gameState = this.game.getGameState();
     this.users = gameState.users;
@@ -159,6 +160,7 @@ class Diamant {
       const { card, dup } = this.game.drawCard();
       const newRound = this.game.updateGame({ card, dup });
       gameState = this.game.getGameState();
+      gameState.newRound = newRound;
 
       io
         .to(user.room)
