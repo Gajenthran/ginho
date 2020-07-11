@@ -122,7 +122,7 @@ const Game = ({ socket, gold, round, deck, nbCards, users, userGold, currentGold
             {renderDeck()}
           </div>
         </div>
-        <div className="div-users--layout div-users--container">
+        <div id="div-users--container">
           <div className="div-container div-users--infos">
             {renderUsers()}
           </div>

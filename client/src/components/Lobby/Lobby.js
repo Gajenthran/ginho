@@ -129,13 +129,6 @@ const Diamant = ({ location }) => {
     setStart(true);
   };
 
-  const handleRestart = (event) => {
-    event.preventDefault();
-
-    socket.emit('restart-game');
-    setStart(true);
-  };
-
   return (
     <>
       <Navbar />

@@ -191,8 +191,8 @@
     display: flex;
     flex-direction: column;
     border-bottom: 1px solid #1a1a21;
-    padding-bottom: 2px;
-    margin-bottom: 8px;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
 }
 
 .div-users--infos>div:last-child {
@@ -227,7 +227,7 @@
 }
 
 @media (max-width: 640px) {
-    #root {
+    #root {
         height: 150vh;
     }
     .div-game {
@@ -238,6 +238,9 @@
     .div-gameboard--card-gold span, .div-gameboard--card-trap, .div-gameboard--card-star {
         display: none;
     }
+    .div-gameboard--layout {
+        width: 95%;
+    }
     .div-gameboard-deck {
         display: none;
     }
@@ -245,7 +248,6 @@
         width: 100%;
     }
     .div-game--layout {
-        width: 100%;
         flex-direction: column;
     }
     .div-gameboard--board, .div-game, .div-gameboard--infos {
@@ -258,8 +260,24 @@
     }
     .div-users--container {
         border-bottom: none;
-        background-color: red;
         display: flex;
         flex-direction: row;
+    }
+    #div-users--container {
+        display: flex;
+        flex-direction: column;
+    }
+    #div-users--container .div-users--infos {
+        width: 95%;
+        display: flex;
+        flex-direction: row;
+    }
+    .div-users--infos>div {
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid #1a1a21;
+        border-bottom: none;
+        padding-right: 5px;
+        margin-right: 5px;
     }
 }
