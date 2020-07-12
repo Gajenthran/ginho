@@ -1,0 +1,144 @@
+.div-home {
+    margin: 0 auto;
+    width: 60%;
+    height: 80%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.div-home h3 {
+    color: white;
+    font-weight: bold;
+    font-size: 25px;
+}
+
+.div-home h5 {
+    margin-top: -12px;
+    font-size: 15px;
+    color: white;
+}
+
+.div-home--row {
+    display: flex;
+    flex-direction: row;
+    height: 75%;
+    justify-content: space-between;
+    color: white;
+}
+
+.div-home--row--game {
+    width: 60%;
+}
+
+.div-home--row--game>div {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    margin: 30px 0 0 100px;
+    text-align: center;
+}
+
+.div-home--row--rules {
+    width: 40%;
+    overflow: auto;
+}
+
+.div-home--row--credits-list {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.div-home--row--credits-list>div:first-child {
+    width: 75%;
+    height: 90px;
+}
+
+.div-home--row--credits-list>div:last-child {
+    width: 25%;
+    height: 90px;
+}
+
+.home--container {
+    border-radius: 20px;
+    background-color: #262939;
+    padding: 10px 15px;
+    margin: 10px;
+    /* cursor: pointer; */
+    color: white;
+}
+
+.div-home--row--game input {
+    background: none;
+    border: 2px solid #5D6165;
+    border-radius: 25px;
+    color: white;
+    padding: 5px 15px;
+    margin-bottom: 20px;
+}
+
+.div-home--row--game button {
+    background: none;
+    color: white;
+    border-radius: 25px;
+    padding: 10px;
+    font-weight: bold;
+    font-size: 15px;
+    border: 2px solid #5D6165;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-transform: perspective(1px) translateZ(0);
+    transform: perspective(1px) translateZ(0);
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+    -webkit-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+    -webkit-transition-property: transform;
+    transition-property: transform;
+}
+
+.div-home--row--game button:active {
+    -webkit-transform: scale(.9);
+    transform: scale(.9);
+}
+
+.div-home--row--game button:hover {
+    border: none;
+    background: transparent linear-gradient(0deg, #146be2 0%, #146be2 100%) 0% 0% no-repeat padding-box;
+}
+
+.div-home--row--rules-desc {
+    color: white;
+    font-size: small;
+}
+
+@media (max-width: 640px) {
+    .div-home--row {
+        flex-direction: column;
+    }
+    .div-home--row--game>div {
+        text-align: center;
+        margin-top: 20px;
+    }
+    .div-home {
+        width: 95%;
+        height: 100%;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        justify-items: flex-start;
+    }
+
+    .div-home--row--game {
+        width: 95%;
+    }
+    
+    .div-home--row--rules {
+        width: 95%;
+    }
+}

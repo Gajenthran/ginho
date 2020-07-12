@@ -31,10 +31,7 @@ const Game = ({ socket, gold, round, deck, nbCards, users, userGold, currentGold
 
   const handleAction = (event, action) => {
     event.preventDefault();
-    console.log('handleAction');
-    socket.emit('update-user', { action }, ({ gameState, error }) => {
-      console.log('toto');
-    });
+    socket.emit('update-user', { action }, ({ gameState, error }) => { });
   }
 
   const renderUsers = () => {
@@ -51,7 +48,7 @@ const Game = ({ socket, gold, round, deck, nbCards, users, userGold, currentGold
           </div>
         </div>
         {users.map(user =>
-          user.id != socket.id &&
+          user.id !== socket.id &&
           <div className="div-users--infos-list" key={user.id}>
             <div className="div-users--name">
               <img src={user.checked ? greenButtonImg : redButtonImg} alt="check-button" />

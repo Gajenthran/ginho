@@ -24,8 +24,6 @@
     justify-content: space-between;
 }
 
-.div-ranking-title {}
-
 .div-ranking-title h3 {
     border-radius: 25px;
     background-color: #262939;
@@ -92,4 +90,10 @@ button:focus {
 .div-ranking button:active {
     -webkit-transform: scale(.9);
     transform: scale(.9);
+}
+
+@media (max-width: 640px) {
+    .ranking--users-list {
+        width: 100%;
+    }
 }

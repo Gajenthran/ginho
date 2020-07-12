@@ -26,6 +26,12 @@
     position: relative;
 }
 
+.div-gameboard--infos {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
 .div-gameboard-icons {
     display: flex;
     flex-direction: row;
@@ -53,11 +59,6 @@
     width: 100%;
 }
 
-.div-gameboard--progress {
-    vertical-align: 20px;
-    margin-top: 7px;
-}
-
 .div-gameboard--progress .progress-bar {
     background: transparent linear-gradient(0deg, #146be2 0%, #146be2 100%) 0% 0% no-repeat padding-box;
 }
@@ -79,6 +80,7 @@
 
 .div-users--infos {
     height: 80%;
+    width: 200px;
 }
 
 .div-users--continue, .div-users--leave {
@@ -131,7 +133,7 @@
 }
 
 .div-users--continue .fa-gavel, .div-users--leave .fa-walking {
-    font-size: 50px;
+    font-size: 40px;
     color: white;
 }
 
@@ -227,8 +229,12 @@
 }
 
 @media (max-width: 640px) {
+    html {
+        background-color: #1a1a21;
+    }
     #root {
         height: 150vh;
+        top: 0;
     }
     .div-game {
         width: 100%;
@@ -279,5 +285,8 @@
         border-bottom: none;
         padding-right: 5px;
         margin-right: 5px;
+    }
+    .div-users--continue .fa-gavel, .div-users--leave .fa-walking {
+        font-size: 25px;
     }
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import orImg from './../../assets/img/or.png'
 import argentImg from './../../assets/img/argent.png'
@@ -15,6 +15,10 @@ const Rank = ({ socket, users }) => {
     socket.emit('restart-game');
   };
 
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   return (
     <div className="div-ranking">
       <div className="div-ranking-title">
@@ -24,27 +28,27 @@ const Rank = ({ socket, users }) => {
         {users.map((user, index) =>
           index === 0 ?
             <div className="ranking-user">
-              <div> <img src={orImg} /> </div>
+              <div> <img src={orImg} alt="or" /> </div>
               <div> {user.name} </div>
-              <div> <img src={goldImg} /> <span> {user.gold} </span> </div>
+              <div> <img src={goldImg} alt="gold"/> <span> {user.gold} </span> </div>
             </div>
             : index === 1 ?
               <div className="ranking-user">
-                <div> <img src={argentImg} /> </div>
+                <div> <img src={argentImg} alt="argent" /> </div>
                 <div> {user.name} </div>
-                <div> <img src={goldImg} /> <span> {user.gold} </span> </div>
+                <div> <img src={goldImg} alt="gold" /> <span> {user.gold} </span> </div>
               </div>
               : index === 2 ?
                 <div className="ranking-user">
-                  <div> <img src={bronzeImg} /> </div>
+                  <div> <img src={bronzeImg} alt="bronze" /> </div>
                   <div> {user.name} </div>
-                  <div> <img src={goldImg} /> <span> {user.gold} </span> </div>
+                  <div> <img src={goldImg} alt="gold" /> <span> {user.gold} </span> </div>
                 </div>
                 :
                 <div className="ranking-user">
                   <div> </div>
                   <div> {user.name} </div>
-                  <div> <img src={goldImg} /> <span> {user.gold} </span> </div>
+                  <div> <img src={goldImg} alt="gold" /> <span> {user.gold} </span> </div>
                 </div>
         )}
       </div>

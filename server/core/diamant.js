@@ -1,14 +1,9 @@
 var Game = require('./game');
-/* var Snake = require('./snake');
-var Item = require('./item');
-var World = require('./world');
-var Util = require('./global/util'); */
 
 class Diamant {
   constructor() {
     this.users = [];
     this.game = null;
-    // this.startGame = false;
   }
 
   _hasUser(name, room) {
