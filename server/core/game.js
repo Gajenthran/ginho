@@ -27,9 +27,6 @@ class Game {
   }
 
   initGame(users) {
-    console.log(`CARDS length: ${CARDS.length}`);
-    console.log(`cards length: ${this.cards.length}\n`);
-
     this.users = users;
     this.gold = 0;
     this.round = 1;
@@ -53,7 +50,6 @@ class Game {
 
   getGameState() {
     // TODO: remove users values
-    console.log(`nbCards: ${this.cards.length}`);
     return {
       gold: this.gold,
       round: this.round,
@@ -87,7 +83,7 @@ class Game {
     );
   }
 
-  _hasRemainingUsers() {
+  hasRemainingUsers() {
     return this.remainingUsers !== 0;
   }
 
@@ -112,7 +108,6 @@ class Game {
   }
 
   _allChecked() {
-    console.log(`playedUser: ${this.playedUser} vs. remainingUser: ${this.remainingUsers}`);
     return this.playedUser === this.remainingUsers;
   }
 
@@ -121,7 +116,6 @@ class Game {
     index = index < 0 ? 0 : index;
     const card = this.cards[index];
 
-    console.log(`Drawn card: ${index}`);
     const dup = card.type === 0 && this._hasDuplicates(card);
 
     this.deck.push(card);
@@ -158,7 +152,7 @@ class Game {
 
     this.remainingUsers -= leavingUsers.length;
 
-    if (!this._hasRemainingUsers()) {
+    if (!this.hasRemainingUsers()) {
       console.log('No remaining player.')
       return true;
     }

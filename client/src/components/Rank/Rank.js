@@ -30,25 +30,25 @@ const Rank = ({ socket, users }) => {
             <div className="ranking-user">
               <div> <img src={orImg} alt="or" /> </div>
               <div> {user.name} </div>
-              <div> <img src={goldImg} alt="gold"/> <span> {user.gold} </span> </div>
+              <div className="ranking-user-gold"> <img src={goldImg} alt="gold"/> <span> {user.gold} </span> </div>
             </div>
             : index === 1 ?
               <div className="ranking-user">
                 <div> <img src={argentImg} alt="argent" /> </div>
                 <div> {user.name} </div>
-                <div> <img src={goldImg} alt="gold" /> <span> {user.gold} </span> </div>
+                <div className="ranking-user-gold"> <img src={goldImg} alt="gold" /> <span> {user.gold} </span> </div>
               </div>
               : index === 2 ?
                 <div className="ranking-user">
                   <div> <img src={bronzeImg} alt="bronze" /> </div>
                   <div> {user.name} </div>
-                  <div> <img src={goldImg} alt="gold" /> <span> {user.gold} </span> </div>
+                  <div className="ranking-user-gold"> <img src={goldImg} alt="gold" /> <span> {user.gold} </span> </div>
                 </div>
                 :
                 <div className="ranking-user">
                   <div> </div>
                   <div> {user.name} </div>
-                  <div> <img src={goldImg} alt="gold" /> <span> {user.gold} </span> </div>
+                  <div className="ranking-user-gold"> <img src={goldImg} alt="gold" /> <span> {user.gold} </span> </div>
                 </div>
         )}
       </div>

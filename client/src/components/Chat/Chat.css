@@ -111,15 +111,17 @@
 
 @media (max-width: 640px) {
   .div-lobby {
-    width: 90%;
+    width: 95%;
+    height: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    justify-items: flex-start;
   }
   .div-lobby--row {
     flex-direction: column;
+    width: 100%;
   }
-  .div-lobby--row>div {
-    width: 95%;
-  }
-  .lobby-users-chat {
+  .lobby-title, .lobby-start-game, .div-lobby--row .lobby-users-chat, .div-lobby--row .lobby-users-list {
     width: 95%;
   }
 }

@@ -27,7 +27,7 @@ const TRAP_CARDS = {
 };
 
 
-const Game = ({ socket, gold, round, deck, nbCards, users, userGold, currentGold, name, action }) => {
+const Game = ({ socket, gold, round, deck, nbCards, users, userGold, currentGold, name, action, dupCard }) => {
 
   const handleAction = (event, action) => {
     event.preventDefault();
@@ -98,6 +98,55 @@ const Game = ({ socket, gold, round, deck, nbCards, users, userGold, currentGold
     );
   };
 
+  const renderDeckHidden = () => {
+    const lCard = deck[deck.length - 1];
+    return (
+      <div className="div-container div-gameboard--board">
+        {deck.map(card =>
+          <div
+            className={
+              lCard.name === 'trap' &&
+                lCard.name === card.name &&
+                lCard.element === card.element ?
+                "div-gameboard--card" : "div-gameboard--card card-transparent"}
+            key={card.id}
+          >
+            <div>
+              {lCard.name === 'trap' &&
+                lCard.name === card.name &&
+                lCard.element === card.element ?
+                <>
+                  <img src={TRAP_CARDS[card.element].img} alt="trap" />
+                  <div className="div-gameboard--card-trap"> {TRAP_CARDS[card.element].name}</div>
+                </>
+                :
+                card.name === 'gold' ?
+                  <>
+                    <img src={TRAP_CARDS[card.name].img} alt="gold" />
+                    <div className="div-gameboard--card-gold"> {card.score} <span> {TRAP_CARDS[card.name].name} </span></div>
+                  </>
+                  :
+                  card.name === 'trap' ?
+                    <>
+                      <img src={TRAP_CARDS[card.element].img} alt="gold" />
+                      <div className="div-gameboard--card-trap"> {TRAP_CARDS[card.element].name}</div>
+                    </>
+                    :
+                    card.name === 'star' ?
+                      <>
+                        <img src={TRAP_CARDS[card.name].img} alt="gold" />
+                        <div className="div-gameboard--card-star"> {TRAP_CARDS[card.name].name}</div>
+                      </>
+                      :
+                      `Problem with database.`
+              }
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="div-game">
       <div className="div-game--layout">
@@ -116,7 +165,7 @@ const Game = ({ socket, gold, round, deck, nbCards, users, userGold, currentGold
             </div>
           </div>
           <div className="div-container div-gameboard--board">
-            {renderDeck()}
+            {dupCard ? renderDeckHidden() : renderDeck()}
           </div>
         </div>
         <div id="div-users--container">

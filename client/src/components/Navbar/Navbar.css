@@ -1,14 +1,14 @@
 .navbar {
-  padding: 0px 2% 0px 2%;
+  padding: 0px 2% 0px 2% !important;
   background-color: #1a1a21;
   border-bottom: 4px solid #222631;
 }
 
 .navbar .navbar--logo-holder h1 {
   color: white;
-  font-size: large;
-  padding: 10px;
+  font-size: 30px;
   margin: 0;
+  font-weight: bold;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;

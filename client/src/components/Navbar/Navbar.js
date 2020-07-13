@@ -55,7 +55,7 @@ const Navy = () => {
   return (
     <Navbar sticky="top" id="navy-diamant" className="navbar">
       <Navbar.Brand href="/" className="navbar--logo-holder">
-        <h1> DIAMANT </h1>
+        <h1> GINHO </h1>
       </Navbar.Brand>
       <Navbar.Toggle aria-controls="responsive-navbar-nav" />
       {renderNavLinks()}

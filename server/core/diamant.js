@@ -37,13 +37,17 @@ class Diamant {
 
   startGame(io, socket) {
     const user = this._getUser(socket.id);
+
+    if (!user)
+      return { error: `Cannot connect with user.` }
+
     socket.broadcast
       .to(user.room)
       .emit('message', { user: 'admin', text: `${user.name} has joined!` });
 
     this.game = null;
     this.game = new Game(this.users);
-    this.game.drawCard();
+    // this.game.drawCard();
     const gameState = this.game.getGameState();
     this.users = gameState.users;
 
@@ -56,12 +60,13 @@ class Diamant {
   restartGame(io, socket) {
     const user = this._getUser(socket.id);
 
+    if (!user)
+      return { error: `Cannot connect with user.` }
+
     this.game.initGame(this.users);
-    this.game.drawCard();
+    // this.game.drawCard();
     const gameState = this.game.getGameState();
     this.users = gameState.users;
-
-    console.log(gameState);
 
     io
       .to(user.room)
@@ -164,7 +169,11 @@ class Diamant {
 
       io
         .to(user.room)
-        .emit('update-game', { gameState, room: user.room });
+        .emit('update-game', {
+          noRemainingUser: newRound && !this.game.hasRemainingUsers(),
+          dupCard: dup,
+          gameState,
+        });
 
       if (newRound) {
         this.game._newRound();

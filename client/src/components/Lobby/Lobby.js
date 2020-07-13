@@ -20,6 +20,7 @@ const Diamant = ({ location }) => {
   const [room, setRoom] = useState('');
   const [start, setStart] = useState(false);
   const [action, setAction] = useState(true);
+  const [duplicatedCard, setDuplicatedCard] = useState(false);
 
   const updateGameState = (gameState) => {
     setStart(true);
@@ -70,15 +71,20 @@ const Diamant = ({ location }) => {
   }, []);
 
   useEffect(() => {
-    socket.on('update-game', ({ error, gameState, room }) => {
-      if (error) alert(error);
+    socket.on(
+      'update-game',
+      ({ error, gameState, noRemainingUser, dupCard }) => {
+        if (error) alert(error);
 
-      window.scrollTo(0, 0)
-      updateGameState(gameState);
-      setGold(gameState.gold);
-      setUsers(gameState.users);
-      setDeck(gameState.deck);
-    });
+        window.scrollTo(0, 0)
+        updateGameState(gameState);
+        setGold(gameState.gold);
+        setUsers(gameState.users);
+        if(!noRemainingUser)
+          setDeck(gameState.deck);
+        setDuplicatedCard(dupCard)
+        console.log(dupCard);
+      });
   }, []);
 
   useEffect(() => {
@@ -92,7 +98,6 @@ const Diamant = ({ location }) => {
       if (error) alert(error);
 
       setTimeout(() => {
-        alert('New round.');
         setDeck(gameState.deck);
         setStart(true);
         setGold(gameState.gold);
@@ -106,9 +111,12 @@ const Diamant = ({ location }) => {
   useEffect(() => {
     socket.on('end-game', ({ error, gameState, room }) => {
       if (error) alert(error);
-      gameState.users.sort((u1, u2) => u1.gold < u2.gold ? 1 : -1);
-      updateGameState(gameState);
-      setRankEnabled(true);
+
+      setTimeout(() => {
+        gameState.users.sort((u1, u2) => u1.gold < u2.gold ? 1 : -1);
+        updateGameState(gameState);
+        setRankEnabled(true);
+      }, 2000);
     });
   }, []);
 
@@ -138,6 +146,7 @@ const Diamant = ({ location }) => {
             currentGold={currentGold}
             name={name}
             action={action}
+            dupCard={duplicatedCard}
           />
           :
           <>
