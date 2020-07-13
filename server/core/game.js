@@ -60,7 +60,7 @@ class Game {
     };
   }
 
-  _newRound() {
+  newRound() {
     this.gold = 0;
     this.cards = [...CARDS];
     this.deck = [];

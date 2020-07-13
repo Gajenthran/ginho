@@ -7,9 +7,10 @@ const cors = require('cors');
 // const passport = require('passport');
 const socketIO = require('socket.io');
 
-const diamant = require('./core/diamant');
+const ginho = require('./core/ginho');
 
 require('dotenv').config();
+
 // require('./config/passport-setup');
 
 /* passport.serializeUser((user, cb) => {
@@ -58,12 +59,11 @@ if (ENV === 'production') {
 }
 
 io.on('connection', (socket) => {
-  listen(io, socket, 'join', diamant.addUser.bind(diamant));
-  listen(io, socket, 'send-message', diamant.sendMessage.bind(diamant));
-  listen(io, socket, 'start-game', diamant.startGame.bind(diamant));
-  listen(io, socket, 'update-user', diamant.updateUser.bind(diamant));
-  listen(io, socket, 'restart-game', diamant.restartGame.bind(diamant));
-  listen(io, socket, 'disconnect', diamant.removeUser.bind(diamant));
+  listen(io, socket, 'join', ginho.addUser.bind(ginho));
+  listen(io, socket, 'start-game', ginho.startGame.bind(ginho));
+  listen(io, socket, 'update-user', ginho.updateUser.bind(ginho));
+  listen(io, socket, 'restart-game', ginho.restartGame.bind(ginho));
+  listen(io, socket, 'disconnect', ginho.removeUser.bind(ginho));
 });
 
 function listen(io, socket, type, callback) {

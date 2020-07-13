@@ -1,163 +1,70 @@
-import React, { useState, useEffect } from "react";
-import queryString from 'query-string';
+import React, { useState } from "react";
 import socket from './../../config/socket';
 
-import Chat from './../Chat/Chat';
-import Rank from './../Rank/Rank';
-import Game from './../Game/Game';
-import Navbar from './../Navbar/Navbar';
+import './Lobby.css';
+import { Fade } from "react-bootstrap";
 
-const Diamant = ({ location }) => {
-  const [users, setUsers] = useState([]);
-  const [rankEnabled, setRankEnabled] = useState(false);
-  const [gold, setGold] = useState(0);
-  const [currentGold, setCurrentGold] = useState(0);
-  const [userGold, setUserGold] = useState(0);
-  const [round, setRound] = useState(1);
-  const [deck, setDeck] = useState([]);
-  const [nbCards, setNbCards] = useState(0);
-  const [name, setName] = useState('');
-  const [room, setRoom] = useState('');
-  const [start, setStart] = useState(false);
-  const [action, setAction] = useState(true);
-  const [duplicatedCard, setDuplicatedCard] = useState(false);
+import greenButtonImg from './../../assets/img/greenbutton.png'
 
-  const updateGameState = (gameState) => {
-    setStart(true);
-    setUsers(gameState.users);
-    setRound(gameState.round);
-    setGold(gameState.gold);
+const Lobby = ({ location, name, room, users }) => {
+  const [hoverRules, setHoverRules] = useState(false);
+  const [hoverUsers, setHoverUsers] = useState(false);
 
-    for (let i = 0; i < gameState.users.length; i++) {
-      if (gameState.users[i].id === socket.id) {
-        setCurrentGold(gameState.users[i].currentGold);
-        setUserGold(gameState.users[i].gold);
-        let action = !gameState.users[i].checked;
-        setAction(action);
-      }
-    }
+  const startGame = (event) => {
+    event.preventDefault();
+
+    socket.emit('start-game');
   };
 
-  useEffect(() => {
-    const { name, room } = queryString.parse(location.search);
-
-    setRoom(room);
-    setName(name)
-
-    socket.emit('join', { name, room }, (error) => {
-      if (error) alert(error);
-    });
-  }, [location.search]);
-
-  useEffect(() => {
-    socket.on('new-game', ({ gameState, room }) => {
-      setStart(true);
-      setGold(gameState.gold);
-      setRound(gameState.round);
-      setDeck(gameState.deck);
-      setNbCards(gameState.nbCards);
-      setCurrentGold(0);
-      setUserGold(0);
-      setUsers(gameState.users);
-      setRankEnabled(false);
-    });
-  }, []);
-
-  useEffect(() => {
-    socket.on('update-users-action', ({ error, gameState, room }) => {
-      if (error) alert(error);
-      updateGameState(gameState);
-    });
-  }, []);
-
-  useEffect(() => {
-    socket.on(
-      'update-game',
-      ({ error, gameState, noRemainingUser, dupCard }) => {
-        if (error) alert(error);
-
-        window.scrollTo(0, 0)
-        updateGameState(gameState);
-        setGold(gameState.gold);
-        setUsers(gameState.users);
-        if(!noRemainingUser)
-          setDeck(gameState.deck);
-        setDuplicatedCard(dupCard)
-        console.log(dupCard);
-      });
-  }, []);
-
-  useEffect(() => {
-    socket.on('draw-card', ({ error, deck }) => {
-      setDeck(deck);
-    });
-  }, []);
-
-  useEffect(() => {
-    socket.on('new-round', ({ error, gameState, room }) => {
-      if (error) alert(error);
-
-      setTimeout(() => {
-        setDeck(gameState.deck);
-        setStart(true);
-        setGold(gameState.gold);
-        setUsers(gameState.users);
-        updateGameState(gameState);
-      }, 2000);
-
-    });
-  }, []);
-
-  useEffect(() => {
-    socket.on('end-game', ({ error, gameState, room }) => {
-      if (error) alert(error);
-
-      setTimeout(() => {
-        gameState.users.sort((u1, u2) => u1.gold < u2.gold ? 1 : -1);
-        updateGameState(gameState);
-        setRankEnabled(true);
-      }, 2000);
-    });
-  }, []);
-
-  useEffect(() => {
-    socket.on("room-users", ({ users }) => {
-      setUsers(users);
-      console.log(users);
-    });
-  }, []);
-
+  const renderUsers = () => {
+    return (
+      <div className="lobby-users--list-row">
+        <div className="lobby-users--infos-list" key={socket.id}>
+          <div className="lobby-users--name">
+            <img src={greenButtonImg} alt="green-button" />
+            {name}
+          </div>
+        </div>
+        {users.map(user =>
+          user.id !== socket.id &&
+          <div className="lobby-users--infos-list" key={user.id}>
+            <div className="lobby-users--name">
+              <img src={greenButtonImg} alt="check-button" />
+              {user.name}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
   return (
-    <>
-      <Navbar />
-      {start === false ?
-        <>
-          <Chat location={location} name={name} room={room} users={users} />
-        </>
-        : rankEnabled === false ?
-          <Game
-            socket={socket}
-            gold={gold}
-            round={round}
-            deck={deck}
-            nbCards={nbCards}
-            users={users}
-            userGold={userGold}
-            currentGold={currentGold}
-            name={name}
-            action={action}
-            dupCard={duplicatedCard}
-          />
-          :
-          <>
-            <Rank
-              socket={socket}
-              users={users}
-            />
-          </>
-      }
-    </>
+    <div className="div-lobby">
+      <div className="lobby--container lobby-title">
+        <h3> {room} </h3>
+      </div>
+      <div className="div-lobby--row">
+        <div onMouseEnter={() => setHoverRules(true)} onMouseLeave={() => setHoverRules(false)} className="lobby--container lobby-users-chat">
+          <h3> RÈGLES </h3>
+          <Fade in={hoverRules}>
+            <h5> DU JEU </h5>
+          </Fade>
+          Le jeu est composé de 34 cartes : <br /> 14 cartes trésor (1, 2, 3, 4, 5, 5, 7, 7, 9, 11, 11, 13, 14, 15 gemmes) <br /> 15 cartes piège (3 de chaque type : feu, éboulement, momie, serpent et araignée) <br /> 5 cartes relique (artéfact) <br /> Au début du jeu, toutes les cartes trésor et piège sont mélangées ensemble, les cartes reliques (artéfacts) sont mises de côté. A chaque début d'expédition une carte relique (artéfact) est ajoutée au paquet. <br /><br /> Le jeu comporte 5 manches (expéditions). L'aventurier avec le plus de points à la fin de partie gagne : chaque gemme récoltée vaut 1 point et chaque relique (artéfact) vaut 5 points. <br /><br /> Lors du tour d'une expédition, une carte du paquet est révélée <br /> - Si un trésor est révélé, les gemmes sont partagés équitablement entre les joueurs. Les gemmes restantes sont posées sur la carte et attendent la sortie d'un aventurier. <br /> - Si une carte piège est révélée, deux cas sont possibles : <br /> - Si c'est la première carte piège de ce type apparue lors de l'expédition, il ne se passe rien. <br /> - Si c'est la deuxième, l'expédition est ratée. Tous les joueurs encore en jeu rentrent au campement sans butin. <br /> - Si l'expédition n'a pas raté (rappel : deux cartes piège identiques), l'expédition se poursuit et chaque joueur doit décider s'il reste dans l'expédition ou s'il rentre au campement. Les décisions s'effectuent secrètement puis sont révélées simultanément. <br /> <br /> Les aventuriers étant rentrés au campement ne participent plus à l'expédition. Ils récupèrent les gemmes qui étaient restées sur les cartes (celles qui n'avaient pu être partagées équitablement). Si le joueur rentre seul, il peut récupérer les reliques (artefacts) révélés. Puis, il met ses gemmes dans son coffre, elles sont protégées et ne peuvent plus être perdues. <br /><br /> L'expédition continue jusqu'à ce que tous les joueurs soient rentrés ou s'arrête dès que deux cartes piège identiques apparaissent. Si l'expédition s'est arrêtée à cause de deux cartes piège identiques, l'une des cartes piège identiques est retirée du paquet de carte. Les cartes reliques (artefacts) restantes dans le paquet sont retirées. <br /><br /> Après 5 expéditions, chaque gemme dans le coffre vaut 1 point, les reliques (artefacts) valent 5 points chacune. Les 2 dernières reliques (artefacts) valent 5 points supplémentaires. Le joueur avec le plus de points gagne. En cas d'égalité le joueur avec le plus de reliques (artéfacts) gagne.
+        </div>
+
+        <div onMouseEnter={() => setHoverUsers(true)} onMouseLeave={() => setHoverUsers(false)} className="lobby--container lobby-users-list">
+          <h3> JOUEURS</h3>
+          <Fade in={hoverUsers}>
+            <h5> ({users.length}) </h5>
+          </Fade>
+          {renderUsers()}
+        </div>
+      </div>
+
+      <div onClick={e => startGame(e)} className="lobby--container lobby-start-game">
+        LANCER LA PARTIE
+      </div>
+    </div>
   );
 }
 
-export default Diamant;
+export default Lobby;

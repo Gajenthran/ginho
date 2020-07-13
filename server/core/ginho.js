@@ -1,42 +1,19 @@
 var Game = require('./game');
+var {
+  hasUser,
+  getUserIndex,
+  getUsersInRoom,
+  getUser
+} = require('./users');
 
-class Diamant {
+class Ginho {
   constructor() {
     this.users = [];
-    this.game = null;
-  }
-
-  _hasUser(name, room) {
-    // TODO: change username to email !!
-    return this.users.find(
-      (user) =>
-        user.room == room &&
-        user.name == name
-    );
-  }
-
-  _getUserIndex(id) {
-    for (let i = 0; i < this.users.length; i++)
-      if (this.users[i].id === id)
-        return i;
-    return -1;
-  }
-
-  _getUsersInRoom(room) {
-    return this.users.filter(
-      (user) => user.room === room
-    );
-  }
-
-  _getUser(id) {
-    return this.users.find(
-      (user) =>
-        user.id === id
-    );
+    this.game = new Map();
   }
 
   startGame(io, socket) {
-    const user = this._getUser(socket.id);
+    const user = getUser(this.users, socket.id);
 
     if (!user)
       return { error: `Cannot connect with user.` }
@@ -58,7 +35,7 @@ class Diamant {
 
 
   restartGame(io, socket) {
-    const user = this._getUser(socket.id);
+    const user = getUser(this.users, socket.id);
 
     if (!user)
       return { error: `Cannot connect with user.` }
@@ -73,19 +50,11 @@ class Diamant {
       .emit('new-game', { gameState, room: user.room });
   }
 
-  sendMessage(io, socket, message) {
-    const user = this._getUser(socket.id);
-
-    io
-      .to(user.room)
-      .emit('message', { user: user.name, text: message });
-  }
-
   addUser(io, socket, { name, email, room }) {
     if (!name || !room)
       return { error: 'Username and room are required.' };
 
-    if (this._hasUser(name, room))
+    if (hasUser(this.users, name, room))
       return { error: 'Username is taken.' };
 
     const user = { id: socket.id, name, email, room };
@@ -94,18 +63,13 @@ class Diamant {
 
     socket.join(user.room);
 
-    socket.emit(
-      'message',
-      { user: 'admin', text: `Welcome ${user.name}.` }
-    );
-
     socket.broadcast
       .to(user.room)
       .emit('message', { user: 'admin', text: `${user.name} has joined!` });
 
     io
       .to(user.room)
-      .emit('room-users', { room: user.room, users: this._getUsersInRoom(user.room) });
+      .emit('room-users', { room: user.room, users: getUsersInRoom(this.users, user.room) });
   }
 
   removeUser(io, socket) {
@@ -118,14 +82,16 @@ class Diamant {
 
     if (user) {
       console.log(`removeUser: ${user.id} - ${user.name}`);
-      io
-        .to(user.room)
-        .emit('message', { user: 'Admin', text: `${user.name} has left.` });
 
       io
         .to(user.room)
-        .emit('room-users', { room: user.room, users: this._getUsersInRoom(user.room) });
+        .emit('room-users', { room: user.room, users: getUsersInRoom(this.users, user.room) });
     }
+  }
+
+  // TODO: clear all users in the lobby
+  removeAllUser() {
+    this.users = [];
   }
 
   updateUser(io, socket, { action }) {
@@ -137,7 +103,7 @@ class Diamant {
       return { error: 'It is not an appropriate action.' };
     }
 
-    const index = this._getUserIndex(socket.id);
+    const index = getUserIndex(this.users, socket.id);
     const user = this.users[index];
 
     if (user && user.checked) {
@@ -151,7 +117,6 @@ class Diamant {
     }
 
     const allChecked = this.game.updateUser(socket.id, action);
-    // console.log(this.users);
 
     var gameState = this.game.getGameState();
     this.users = gameState.users;
@@ -176,7 +141,7 @@ class Diamant {
         });
 
       if (newRound) {
-        this.game._newRound();
+        this.game.newRound();
         gameState = this.game.getGameState();
 
         io
@@ -196,11 +161,6 @@ class Diamant {
 
     return { gameState };
   }
-
-  // TODO: clear all users in the lobby
-  removeAllUser() {
-    this.users = [];
-  }
 }
 
-module.exports = new Diamant();
+module.exports = new Ginho();

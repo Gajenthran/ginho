@@ -6,7 +6,7 @@ import './Game.css';
 import goldImg from './../../assets/img/gold.png';
 import starImg from './../../assets/img/star.png';
 import greenButtonImg from './../../assets/img/greenbutton.png';
-import redButtonImg from './../../assets/img/greenbutton.png';
+import redButtonImg from './../../assets/img/redbutton.png';
 import blooperImg from './../../assets/img/blooper.png';
 import bowserImg from './../../assets/img/bowser.png';
 import koopaImg from './../../assets/img/koopa.png';
