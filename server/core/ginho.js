@@ -26,8 +26,7 @@ class Ginho {
     if (!game)
       return { error: 'Game don\'t exist.' }
 
-    const gameState = game.getGameState();
-
+    const gameState = game.getGameState(user);
     io
       .to(user.room)
       .emit('new-game', { gameState, options, room: user.room });
@@ -48,7 +47,7 @@ class Ginho {
       return { error: 'Game don\'t exist.' }
 
     game.initGame(users);
-    const gameState = game.getGameState();
+    const gameState = game.getGameState(user);
 
     io
       .to(user.room)
@@ -65,13 +64,28 @@ class Ginho {
     const user = { id: socket.id, name, email, room };
     this.users.push(user);
 
+    let gameStarted = false,
+      gameState = null,
+      gameOptions = null;
+
+    const game = this.game.get(room);
+
+    if (game) {
+      gameStarted = game.addUser(user.id);
+      gameState = game.getGameState(user);
+      gameOptions = game.getOptions();
+    }
+
     socket.join(user.room);
 
     io
       .to(user.room)
       .emit('room-users', {
         room: user.room,
-        users: getUsersInRoom(this.users, user.room)
+        users: getUsersInRoom(this.users, user.room),
+        gameStarted,
+        gameState,
+        gameOptions
       });
   }
 
@@ -87,10 +101,16 @@ class Ginho {
     if (!game)
       return { error: 'Game don\'t exist.' }
 
-    game.removeUser(user.id);
-
     if (user) {
       console.log(`removeUser: ${user.id} - ${user.name}`);
+      game.removeUser(user.id);
+
+      if (game.hasUser()) {
+        this.updateGame(io, game, user, game._allChecked());
+        this.endGame(io, game, user);
+      } else {
+        this.game.delete(user.room);
+      }
 
       io
         .to(user.room)
@@ -136,7 +156,7 @@ class Ginho {
 
     const allChecked = game.updateUser(socket.id, action);
 
-    var gameState = game.getGameState();
+    var gameState = game.getGameState(user);
     this.users = gameState.users;
     gameState.allChecked = allChecked;
 
@@ -144,10 +164,17 @@ class Ginho {
       .to(user.room)
       .emit('update-users-action', { gameState, room: user.room });
 
+    this.updateGame(io, game, user, allChecked)
+    this.endGame(io, game, user);
+
+    return { gameState };
+  }
+
+  updateGame(io, game, user, allChecked) {
     if (allChecked) {
       const { card, dup } = game.drawCard();
       const newRound = game.updateGame({ card, dup });
-      gameState = game.getGameState();
+      let gameState = game.getGameState(user);
       gameState.newRound = newRound;
 
       io
@@ -155,30 +182,31 @@ class Ginho {
         .emit('update-game', {
           noRemainingUser: newRound && !game.hasRemainingUsers(),
           dupCard: dup,
-          gameState,
+          gameState
         });
 
       if (newRound) {
         game.newRound();
-        gameState = game.getGameState();
+        gameState = game.getGameState(user);
 
         io
           .to(user.room)
           .emit('new-round', { gameState, room: user.room });
       }
     }
+  }
 
+  endGame(io, game, user) {
     if (game.end()) {
       game.rankUsers();
-      gameState = game.getGameState();
+      let gameState = game.getGameState(user);
 
       io
         .to(user.room)
         .emit('end-game', { gameState, room: user.room });
     }
-
-    return { gameState };
   }
 }
+
 
 module.exports = new Ginho();

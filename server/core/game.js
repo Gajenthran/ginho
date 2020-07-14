@@ -16,7 +16,6 @@ class Game {
     this.remainingUsers = this.users.length;
     this.playedUser = 0;
     this.options = options;
-    console.log(typeof this.options.nbRound, typeof this.options.nbPlayer, this.options.x2Stars, this.options.duplicate);
     // nbRound, nbPlayer, x2Stars, duplicate
 
     for (let i = 0; i < this.users.length; i++) {
@@ -88,8 +87,24 @@ class Game {
     );
   }
 
+  hasUser() {
+    return this.users.length > 0;
+  }
+
   hasRemainingUsers() {
     return this.remainingUsers !== 0;
+  }
+
+  _countPlayedUsers() {
+    var played = 0, remaining = 0;
+    for (let i = 0; i < this.users.length; i++) {
+      if (this.users[i].checked)
+        played++;
+      if (this.users[i].left !== true)
+        remaining++;
+    }
+
+    return { played, remaining };
   }
 
   _getUserIndex(id) {
@@ -138,7 +153,6 @@ class Game {
 
   updateGame({ card, dup }) {
     let leavingUsers = this._leavingUsers(this._remainingUser());
-
 
     if (leavingUsers.length !== 0) {
       const x2 = this.options.x2Stars ?
@@ -215,9 +229,33 @@ class Game {
     return this._allChecked();
   }
 
-  removeUser(id) {
+  addUser(id) {
     const index = this.users.findIndex((user) => user.id == id);
-    this.users.splice(index, 1)[0];
+
+    if (index !== -1) {
+      this.users[index].left = false;
+      this.users[index].checked = false;
+      this.users[index].action = CONTINUE;
+      this.users[index].gold = 0;
+      this.users[index].currentGold = 0;
+    }
+
+    const { played, remaining } = this._countPlayedUsers()
+    this.remainingUsers = remaining;
+    this.playedUser = played;
+    return index !== -1;
+  }
+
+  removeUser(id) {
+    // TODO: useless but to improve
+    const index = this.users.findIndex((user) => user.id == id);
+
+    if (index !== -1)
+      this.users.splice(index, 1)[0];
+
+    const { played, remaining } = this._countPlayedUsers()
+    this.remainingUsers = remaining;
+    this.playedUser = played;
   }
 }
 

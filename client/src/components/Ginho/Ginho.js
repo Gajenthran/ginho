@@ -11,44 +11,44 @@ import Navbar from './../Navbar/Navbar';
 const GAMESTATE = 0, LOBBYSTATE = 1, RANKSTATE = 2;
 
 const Ginho = ({ location }) => {
+  const [gameState, setGameState] = useState({
+    gold: 0,
+    round: 1,
+    nbCards: 0,
+    deck: []
+  });
   const [users, setUsers] = useState([]);
-  const [gold, setGold] = useState(0);
-  const [currentGold, setCurrentGold] = useState(0);
-  const [userGold, setUserGold] = useState(0);
-  const [round, setRound] = useState(1);
-  const [deck, setDeck] = useState([]);
-  const [nbCards, setNbCards] = useState(0);
-  const [name, setName] = useState('');
-  const [room, setRoom] = useState('');
-  const [action, setAction] = useState(true);
+  const [user, setUser] = useState({});
   const [duplicatedCard, setDuplicatedCard] = useState(false);
   const [hasRemainingUser, setHasRemainingUser] = useState(true);
   const [playState, setPlayState] = useState(LOBBYSTATE);
   const [options, setOptions] = useState({});
   // const [stars, setStars] = useState([]);
 
-  const updateGameState = (gameState) => {
-    setUsers(gameState.users);
-    setRound(gameState.round);
-    setGold(gameState.gold);
+  const updateGameState = (gState) => {
+    for (let i = 0; i < gState.users.length; i++)
+      if (gState.users[i].id === socket.id)
+        setUser(gState.users[i]);
 
-    for (let i = 0; i < gameState.users.length; i++) {
-      if (gameState.users[i].id === socket.id) {
-        setCurrentGold(gameState.users[i].currentGold);
-        setUserGold(gameState.users[i].gold);
-        let action = !gameState.users[i].checked;
-        setAction(action);
-      }
-    }
+    setUsers(gState.users);
+    setGameState({
+      gold: gState.gold,
+      round: gState.round,
+      deck: gState.deck,
+      nbCards: gState.nbCards
+    });
+
   };
 
   useEffect(() => {
     const { name, room } = queryString.parse(location.search);
 
-    setRoom(room);
-    setName(name)
+    setUser({
+      name,
+      room
+    });
 
-    socket.emit('join', { name, room }, (error) => {
+    socket.emit('join', { name, room }, ({ error }) => {
       if (error) alert(error);
     });
   }, [location.search]);
@@ -56,13 +56,7 @@ const Ginho = ({ location }) => {
   useEffect(() => {
     socket.on('new-game', ({ gameState, options }) => {
       setOptions(options);
-      setGold(gameState.gold);
-      setRound(gameState.round);
-      setDeck(gameState.deck);
-      setNbCards(gameState.nbCards);
-      setCurrentGold(0);
-      setUserGold(0);
-      setUsers(gameState.users);
+      updateGameState(gameState);
       setPlayState(GAMESTATE);
     });
   }, []);
@@ -85,7 +79,10 @@ const Ginho = ({ location }) => {
         updateGameState(gameState);
         setHasRemainingUser(!noRemainingUser);
         if (!noRemainingUser)
-          setDeck(gameState.deck);
+          setGameState(state => ({
+            ...state,
+            deck: gameState.deck
+          }));
         setDuplicatedCard(dupCard)
       });
   }, []);
@@ -93,7 +90,10 @@ const Ginho = ({ location }) => {
   useEffect(() => {
     socket.on('draw-card', ({ error, deck }) => {
       if (error) alert(error);
-      setDeck(deck);
+      setGameState(state => ({
+        ...state,
+        deck: deck
+      }));
     });
   }, []);
 
@@ -102,7 +102,6 @@ const Ginho = ({ location }) => {
       if (error) alert(error);
 
       setTimeout(() => {
-        setDeck(gameState.deck);
         setDuplicatedCard(false);
         setHasRemainingUser(true);
         updateGameState(gameState);
@@ -123,8 +122,13 @@ const Ginho = ({ location }) => {
   }, []);
 
   useEffect(() => {
-    socket.on("room-users", ({ users }) => {
+    socket.on("room-users", ({ users, gameStarted, gameState, gameOptions }) => {
       setUsers(users);
+      if (gameStarted) {
+        setPlayState(GAMESTATE);
+        updateGameState(gameState);
+        setOptions(gameOptions);
+      }
     });
   }, []);
 
@@ -133,20 +137,19 @@ const Ginho = ({ location }) => {
       <Navbar />
       {playState === LOBBYSTATE ?
         <>
-          <Lobby location={location} name={name} room={room} users={users} />
+          <Lobby
+            location={location}
+            name={user.name}
+            room={user.room}
+            users={users}
+          />
         </>
         : playState === GAMESTATE ?
           <Game
             socket={socket}
-            gold={gold}
-            round={round}
-            deck={deck}
-            nbCards={nbCards}
+            user={user}
+            gameState={gameState}
             users={users}
-            userGold={userGold}
-            currentGold={currentGold}
-            name={name}
-            action={action}
             dupCard={duplicatedCard}
             hasRemainingUser={hasRemainingUser}
             nbRound={options.nbRound}

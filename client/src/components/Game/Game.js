@@ -7,6 +7,7 @@ import goldImg from './../../assets/img/gold.png';
 import starImg from './../../assets/img/star.png';
 import greenButtonImg from './../../assets/img/greenbutton.png';
 import redButtonImg from './../../assets/img/redbutton.png';
+import whiteButtonImg from './../../assets/img/whitebutton.png';
 import blooperImg from './../../assets/img/blooper.png';
 import bowserImg from './../../assets/img/bowser.png';
 import koopaImg from './../../assets/img/koopa.png';
@@ -28,10 +29,8 @@ const TRAP_CARDS = {
 
 
 const Game = (
-  { socket, gold, round, deck, nbCards,
-    users, userGold, currentGold, name,
-    action, dupCard, hasRemainingUser,
-    nbRound
+  { socket, user, users, gameState, 
+    dupCard, hasRemainingUser, nbRound
   }) => {
 
   const handleAction = (event, action) => {
@@ -44,27 +43,38 @@ const Game = (
       <>
         <div className="div-users--infos-list" key={socket.id}>
           <div className="div-users--name">
-            <img src={greenButtonImg} alt="green-button" />
-            {name}
+            <img
+              src={
+                user.left ? whiteButtonImg :
+                  user.checked ? greenButtonImg :
+                    redButtonImg
+              }
+              alt="green-button"
+            />
+            {user.name}
           </div>
           <div className="div-users--gold">
             <img src={goldImg} alt="gold" />
-            <div> {currentGold} <span> ({userGold}) </span></div>
+            <div> {user.currentGold} <span> ({user.gold}) </span></div>
           </div>
         </div>
-        {users.map(user =>
-          user.id !== socket.id &&
-          <div className="div-users--infos-list" key={user.id}>
+        {users.map(usr =>
+          usr.id !== socket.id &&
+          <div className="div-users--infos-list" key={usr.id}>
             <div className="div-users--name">
               <img
-                src={user.checked ? greenButtonImg : redButtonImg}
+                src={
+                  usr.left ? whiteButtonImg :
+                    usr.checked ? greenButtonImg :
+                      redButtonImg
+                }
                 alt="check-button"
               />
-              {user.name}
+              {usr.name}
             </div>
             <div className="div-users--gold">
               <img src={goldImg} alt="gold" />
-              <div> {user.currentGold} </div>
+              <div> {usr.currentGold} </div>
             </div>
           </div>
         )}
@@ -82,7 +92,7 @@ const Game = (
   const renderDeck = () => {
     return (
       <div className="div-container div-gameboard--board">
-        {deck.map((card, index) =>
+        {gameState.deck.map((card, index) =>
           <div className="div-gameboard--card" key={card.id}>
             <div>
               {card.name === 'gold' ?
@@ -123,10 +133,10 @@ const Game = (
   };
 
   const renderDeckHidden = () => {
-    const lCard = deck[deck.length - 1];
+    const lCard = gameState.deck[gameState.deck.length - 1];
     return (
       <div className="div-container div-gameboard--board">
-        {deck.map(card =>
+        {gameState.deck.map(card =>
           <div
             className={
               lCard.name === 'trap' &&
@@ -186,14 +196,17 @@ const Game = (
           <div className="div-container div-gameboard--infos">
             <div className="div-gameboard-icons">
               <img className="game--icons" src={goldImg} alt='gold' />
-              <div> {gold} </div>
+              <div> {gameState.gold} </div>
             </div>
             <div className="div-gameboard-icons div-gameboard-deck">
               <img className="game--icons" src={deckImg} alt="deck" />
-              <div> {deck.length} <span> ({nbCards}) </span></div>
+              <div>
+                {gameState.deck.length}
+                <span> ({gameState.nbCards}) </span>
+              </div>
             </div>
             <div className="div-gameboard--progress">
-              <ProgressBar now={(round / nbRound) * 100} />
+              <ProgressBar now={(gameState.round / nbRound) * 100} />
             </div>
           </div>
           <div className="div-container div-gameboard--board">
@@ -205,7 +218,7 @@ const Game = (
             {renderUsers()}
           </div>
           <div className="div-users--action">
-            {action ?
+            {!user.checked ?
               <>
                 <div
                   onClick={e => handleAction(e, CONTINUE)}
