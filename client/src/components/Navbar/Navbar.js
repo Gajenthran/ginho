@@ -1,8 +1,8 @@
 import React from 'react';
+import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
 
 import './Navbar.css'
 
-import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
 
 const Navy = () => {
 
@@ -21,7 +21,10 @@ const Navy = () => {
               </span>
             </Nav.Link >
             <div className="navbar--link nav-link">
-              <NavDropdown title={<i className="fas fa-bars"></i>} id="basic-nav-dropdown">
+              <NavDropdown
+                title={<i className="fas fa-bars"></i>}
+                id="basic-nav-dropdown"
+              >
                 <NavDropdown.Item href={null}>Aide</NavDropdown.Item>
                 <NavDropdown.Item href={null}>Another action</NavDropdown.Item>
                 <NavDropdown.Divider />
@@ -42,7 +45,10 @@ const Navy = () => {
               </span>
             </Nav.Link>
             <div className="navbar--link nav-link">
-              <NavDropdown title={<i className="fas fa-bars"></i>} id="basic-nav-dropdown">
+              <NavDropdown
+                title={<i className="fas fa-bars"></i>}
+                id="basic-nav-dropdown"
+              >
                 <NavDropdown.Item href={null}>Aide</NavDropdown.Item>
                 <NavDropdown.Item href={null}>Another action</NavDropdown.Item>
               </NavDropdown>

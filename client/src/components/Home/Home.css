@@ -21,6 +21,11 @@
     color: white;
 }
 
+.div-home--form {
+    margin: 0 auto;
+    width: 200px;
+}
+
 .div-home--row {
     display: flex;
     flex-direction: row;
@@ -36,8 +41,9 @@
 .div-home--row--game>div {
     display: flex;
     flex-direction: column;
-    width: 50%;
-    margin: 30px 0 0 100px;
+    /* margin: 30px 0 0 100px; */
+    margin: 0 auto;
+    margin-top: 20px;
     text-align: center;
 }
 
@@ -123,7 +129,12 @@
     font-size: small;
 }
 
-@media (max-width: 640px) {
+.div-home--row--rules-desc div {
+    color: white;
+    font-size: small;
+}
+
+@media (max-width: 768px) {
     .div-home--row {
         flex-direction: column;
     }
@@ -142,9 +153,45 @@
         flex-grow: 1;
     }
     .div-home--row--game {
+        width: 97%;
+    }
+    .div-home--row--rules {
+        width: 97%;
+    }
+}
+
+@media (max-width: 640px) {
+    .div-home--row {
+        flex-direction: column;
+    }
+    .div-home--row--game>div {
+        text-align: center;
+        margin-top: 20px;
+    }
+    .div-home {
+        width: 100%;
+        height: auto;
+        flex-wrap: wrap;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        justify-items: flex-start;
+        align-content: flex-start;
+        flex-grow: 1;
+        margin:0;
+    }
+    .div-home--row--game {
         width: 95%;
+        margin: 10px auto;
     }
     .div-home--row--rules {
         width: 95%;
+        margin: 10px auto;
+    }
+    .div-home--row--credits-list>div:first-child {
+        width: 95%;
+        margin: 10px auto;
+    }
+    .div-home--row--credits-list>div:last-child {
+        display: none;
     }
 }

@@ -1,21 +1,23 @@
 const fs = require('fs');
 
-const NB_ROUND = 3;
-// const NB_CARDS = 34;
 const LEAVE = 0, CONTINUE = 1;
+const STAR_BONUS = 5;
 const CARDS_JSON = JSON.parse(fs.readFileSync(`${__dirname}/cards.json`));
 const CARDS = CARDS_JSON.cards;
 
 class Game {
-  constructor(users) {
+  constructor(users, options) {
     this.users = users;
     this.gold = 0;
-    this.star = [];
+    this.stars = [];
     this.round = 1;
     this.cards = [...CARDS];
     this.deck = [];
     this.remainingUsers = this.users.length;
     this.playedUser = 0;
+    this.options = options;
+    console.log(typeof this.options.nbRound, typeof this.options.nbPlayer, this.options.x2Stars, this.options.duplicate);
+    // nbRound, nbPlayer, x2Stars, duplicate
 
     for (let i = 0; i < this.users.length; i++) {
       this.users[i].left = false;
@@ -45,8 +47,10 @@ class Game {
   }
 
   end() {
-    return this.round > NB_ROUND;
+    return this.round > this.options.nbRound;
   }
+
+  getOptions() { return this.options }
 
   getGameState() {
     // TODO: remove users values
@@ -56,7 +60,8 @@ class Game {
       deck: this.deck,
       users: this.users,
       nbCards: this.cards.length,
-      remainingUsers: this.remainingUsers
+      remainingUsers: this.remainingUsers,
+      stars: this.stars
     };
   }
 
@@ -116,7 +121,8 @@ class Game {
     index = index < 0 ? 0 : index;
     const card = this.cards[index];
 
-    const dup = card.type === 0 && this._hasDuplicates(card);
+    const dup = this.options.duplicate ?
+      card.type === 0 : card.type === 0 && this._hasDuplicates(card);
 
     this.deck.push(card);
     this.cards.splice(index, 1);
@@ -133,9 +139,13 @@ class Game {
   updateGame({ card, dup }) {
     let leavingUsers = this._leavingUsers(this._remainingUser());
 
+
     if (leavingUsers.length !== 0) {
+      const x2 = this.options.x2Stars ?
+        Math.floor(Math.random() * Math.floor(3)) :
+        1;
       let sharedStar = leavingUsers.length === 1 ?
-        this.star.length * 5 : 0;
+        this.stars.length * STAR_BONUS * x2 : 0;
       let sharedGold = 0;
 
       sharedGold += Math.floor(this.gold / leavingUsers.length);
@@ -147,7 +157,14 @@ class Game {
         user.gold += user.currentGold;
       });
 
-      if (leavingUsers.length === 1) this.star = [];
+      if (
+        leavingUsers.length === 1 &&
+        this.stars.length
+      ) {
+        for (let i = 0; i < this.stars.length; i++)
+          this.stars[i].activate = true;
+        this.stars = [];
+      }
     }
 
     this.remainingUsers -= leavingUsers.length;
@@ -163,7 +180,10 @@ class Game {
     }
 
     this.gold += card.name === 'gold' ? card.score : 0;
-    if (card.name === 'star') this.star.push(card);
+    if (card.name === 'star') {
+      this.stars.push(card);
+      card.activate = false;
+    }
 
     // TODO: better iteration
     let sharedGold = 0;
@@ -193,6 +213,11 @@ class Game {
     this.playedUser++;
 
     return this._allChecked();
+  }
+
+  removeUser(id) {
+    const index = this.users.findIndex((user) => user.id == id);
+    this.users.splice(index, 1)[0];
   }
 }
 

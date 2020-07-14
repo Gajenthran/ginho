@@ -1,5 +1,5 @@
 import React from 'react';
-import { ProgressBar } from 'react-bootstrap';
+import { ProgressBar, Spinner } from 'react-bootstrap';
 
 import './Game.css';
 
@@ -27,11 +27,16 @@ const TRAP_CARDS = {
 };
 
 
-const Game = ({ socket, gold, round, deck, nbCards, users, userGold, currentGold, name, action, dupCard }) => {
+const Game = (
+  { socket, gold, round, deck, nbCards,
+    users, userGold, currentGold, name,
+    action, dupCard, hasRemainingUser,
+    nbRound
+  }) => {
 
   const handleAction = (event, action) => {
     event.preventDefault();
-    socket.emit('update-user', { action }, ({ gameState, error }) => { });
+    socket.emit('update-user', { action }, () => { });
   }
 
   const renderUsers = () => {
@@ -51,7 +56,10 @@ const Game = ({ socket, gold, round, deck, nbCards, users, userGold, currentGold
           user.id !== socket.id &&
           <div className="div-users--infos-list" key={user.id}>
             <div className="div-users--name">
-              <img src={user.checked ? greenButtonImg : redButtonImg} alt="check-button" />
+              <img
+                src={user.checked ? greenButtonImg : redButtonImg}
+                alt="check-button"
+              />
               {user.name}
             </div>
             <div className="div-users--gold">
@@ -60,6 +68,13 @@ const Game = ({ socket, gold, round, deck, nbCards, users, userGold, currentGold
             </div>
           </div>
         )}
+        {(dupCard || !hasRemainingUser) &&
+          <Spinner
+            className="users-spinner--loading"
+            animation="border"
+            role="status"
+          />
+        }
       </>
     );
   };
@@ -67,26 +82,35 @@ const Game = ({ socket, gold, round, deck, nbCards, users, userGold, currentGold
   const renderDeck = () => {
     return (
       <div className="div-container div-gameboard--board">
-        {deck.map(card =>
+        {deck.map((card, index) =>
           <div className="div-gameboard--card" key={card.id}>
             <div>
               {card.name === 'gold' ?
                 <>
                   <img src={TRAP_CARDS[card.name].img} alt="gold" />
-                  <div className="div-gameboard--card-gold"> {card.score} <span> {TRAP_CARDS[card.name].name} </span></div>
+                  <div className="div-gameboard--card-gold"> {card.score}
+                    <span> {TRAP_CARDS[card.name].name} </span>
+                  </div>
                 </>
                 :
                 card.name === 'trap' ?
                   <>
-                    <img src={TRAP_CARDS[card.element].img} alt="gold" />
-                    <div className="div-gameboard--card-trap"> {TRAP_CARDS[card.element].name}</div>
+                    <img src={TRAP_CARDS[card.element].img} alt="trap" />
+                    <div className="div-gameboard--card-trap">
+                      {TRAP_CARDS[card.element].name}
+                    </div>
                   </>
                   :
                   card.name === 'star' ?
-                    // TODO: filter grayscale
                     <>
-                      <img src={TRAP_CARDS[card.name].img} alt="gold" />
-                      <div className="div-gameboard--card-star"> {TRAP_CARDS[card.name].name}</div>
+                      <img
+                        src={TRAP_CARDS[card.name].img}
+                        alt="star"
+                        style={card.activate ? { "filter": "grayscale(1)" } : null}
+                      />
+                      <div className="div-gameboard--card-star">
+                        {TRAP_CARDS[card.name].name}
+                      </div>
                     </>
                     :
                     `Problem with database.`
@@ -117,25 +141,33 @@ const Game = ({ socket, gold, round, deck, nbCards, users, userGold, currentGold
                 lCard.element === card.element ?
                 <>
                   <img src={TRAP_CARDS[card.element].img} alt="trap" />
-                  <div className="div-gameboard--card-trap"> {TRAP_CARDS[card.element].name}</div>
+                  <div className="div-gameboard--card-trap">
+                    {TRAP_CARDS[card.element].name}
+                  </div>
                 </>
                 :
                 card.name === 'gold' ?
                   <>
                     <img src={TRAP_CARDS[card.name].img} alt="gold" />
-                    <div className="div-gameboard--card-gold"> {card.score} <span> {TRAP_CARDS[card.name].name} </span></div>
+                    <div className="div-gameboard--card-gold"> {card.score}
+                      <span> {TRAP_CARDS[card.name].name} </span>
+                    </div>
                   </>
                   :
                   card.name === 'trap' ?
                     <>
                       <img src={TRAP_CARDS[card.element].img} alt="gold" />
-                      <div className="div-gameboard--card-trap"> {TRAP_CARDS[card.element].name}</div>
+                      <div className="div-gameboard--card-trap">
+                        {TRAP_CARDS[card.element].name}
+                      </div>
                     </>
                     :
                     card.name === 'star' ?
                       <>
                         <img src={TRAP_CARDS[card.name].img} alt="gold" />
-                        <div className="div-gameboard--card-star"> {TRAP_CARDS[card.name].name}</div>
+                        <div className="div-gameboard--card-star">
+                          {TRAP_CARDS[card.name].name}
+                        </div>
                       </>
                       :
                       `Problem with database.`
@@ -161,7 +193,7 @@ const Game = ({ socket, gold, round, deck, nbCards, users, userGold, currentGold
               <div> {deck.length} <span> ({nbCards}) </span></div>
             </div>
             <div className="div-gameboard--progress">
-              <ProgressBar now={(round / 3) * 100} />
+              <ProgressBar now={(round / nbRound) * 100} />
             </div>
           </div>
           <div className="div-container div-gameboard--board">
@@ -175,10 +207,16 @@ const Game = ({ socket, gold, round, deck, nbCards, users, userGold, currentGold
           <div className="div-users--action">
             {action ?
               <>
-                <div onClick={e => handleAction(e, CONTINUE)} className="div-container div-users--continue">
+                <div
+                  onClick={e => handleAction(e, CONTINUE)}
+                  className="div-container div-users--continue"
+                >
                   <i className="fas fa-gavel"></i>
                 </div>
-                <div onClick={e => handleAction(e, LEAVE)} className="div-container div-users--leave">
+                <div
+                  onClick={e => handleAction(e, LEAVE)}
+                  className="div-container div-users--leave"
+                >
                   <i className="fas fa-walking"></i>
                 </div>
               </>

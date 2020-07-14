@@ -84,6 +84,7 @@
 .div-users--infos {
     height: 80%;
     width: 200px;
+    position: relative;
 }
 
 .div-users--continue, .div-users--leave {
@@ -200,8 +201,17 @@
     margin-bottom: 5px;
 }
 
-.div-users--infos>div:last-child {
+.div-users--infos-list>div:last-child {
     border: none;
+}
+
+.users-spinner--loading {
+    color: white;
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
 }
 
 .div-users--infos .div-users--gold>div {
@@ -231,13 +241,9 @@
     opacity: 0.22;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
     html {
         background-color: #1a1a21;
-    }
-    #root {
-        height: 150vh;
-        top: 0;
     }
     .div-game {
         width: 100%;
@@ -248,7 +254,8 @@
         display: none;
     }
     .div-gameboard--layout {
-        width: 95%;
+        width: 100%;
+        margin: 0;
     }
     .div-gameboard-deck {
         display: none;
@@ -260,7 +267,8 @@
         flex-direction: column;
     }
     .div-gameboard--board, .div-game, .div-gameboard--infos {
-        width: 100%;
+        width: 95%;
+        margin: 10px auto;
     }
     .div-users--container {
         width: 100%;
@@ -285,6 +293,7 @@
         justify-items: flex-start;
         align-content: flex-start;
         flex-grow: 1;
+        margin: 10px auto;
     }
     .div-users--infos>div {
         display: flex;
@@ -306,5 +315,90 @@
     }
     .div-gameboard--layout {
         height: auto;
+    }
+    .div-users--action {
+        width: 100%;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 640px) {
+    html {
+        background-color: #1a1a21;
+    }
+    .div-game {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+    }
+    .div-gameboard--card-gold span, .div-gameboard--card-trap, .div-gameboard--card-star {
+        display: none;
+    }
+    .div-gameboard--layout {
+        width: 100%;
+        margin: 0;
+    }
+    .div-gameboard-deck {
+        display: none;
+    }
+    .div-gameboard {
+        width: 100%;
+    }
+    .div-game--layout {
+        flex-direction: column;
+    }
+    .div-gameboard--board, .div-game, .div-gameboard--infos {
+        width: 95%;
+        margin: 10px auto;
+    }
+    .div-users--container {
+        width: 100%;
+        flex-direction: row;
+        height: 20%;
+    }
+    .div-users--container {
+        border-bottom: none;
+        display: flex;
+        flex-direction: row;
+    }
+    #div-users--container {
+        display: flex;
+        flex-direction: column;
+    }
+    #div-users--container .div-users--infos {
+        width: 95%;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        justify-items: flex-start;
+        align-content: flex-start;
+        flex-grow: 1;
+        margin: 10px auto;
+    }
+    .div-users--infos>div {
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid #1a1a21;
+        border-bottom: none;
+        padding-right: 5px;
+        margin-right: 5px;
+    }
+    .div-users--continue .fa-gavel, .div-users--leave .fa-walking {
+        font-size: 25px;
+    }
+    .div-gameboard--infos {
+        height: 80px;
+    }
+    .div-gameboard--board {
+        height: auto;
+        min-height: 100px;
+    }
+    .div-gameboard--layout {
+        height: auto;
+    }
+    .div-users--action {
+        width: 100%;
+        margin: 0 auto;
     }
 }

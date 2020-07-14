@@ -1,19 +1,33 @@
 import React, { useState } from "react";
+import RangeSlider from 'react-bootstrap-range-slider';
+import BootstrapSwitchButton from 'bootstrap-switch-button-react'
+import { Fade } from "react-bootstrap";
+
 import socket from './../../config/socket';
 
 import './Lobby.css';
-import { Fade } from "react-bootstrap";
 
 import greenButtonImg from './../../assets/img/greenbutton.png'
 
-const Lobby = ({ location, name, room, users }) => {
+const Lobby = ({ name, room, users }) => {
   const [hoverRules, setHoverRules] = useState(false);
   const [hoverUsers, setHoverUsers] = useState(false);
+  const [nbRound, setNbRound] = useState(3);
+  const [nbPlayer, setNbPlayer] = useState(2);
+  const [x2Stars, setx2Stars] = useState(false);
+  const [duplicate, setDuplicate] = useState(false);
+  const [roundOptions, setRoundOptions] = useState(false);
+  const [x2Options, setX2Options] = useState(false);
+  const [playerOptions, setPlayerOptions] = useState(false);
+  const [dupOptions, setDupOptions] = useState(false);
 
   const startGame = (event) => {
     event.preventDefault();
-
-    socket.emit('start-game');
+    socket.emit(
+      'start-game',
+      { nbRound, nbPlayer, x2Stars, duplicate }, (error) => {
+        if (error) alert(error);
+      });
   };
 
   const renderUsers = () => {
@@ -37,21 +51,106 @@ const Lobby = ({ location, name, room, users }) => {
       </div>
     );
   }
+
   return (
     <div className="div-lobby">
       <div className="lobby--container lobby-title">
         <h3> {room} </h3>
       </div>
       <div className="div-lobby--row">
-        <div onMouseEnter={() => setHoverRules(true)} onMouseLeave={() => setHoverRules(false)} className="lobby--container lobby-users-chat">
-          <h3> RÈGLES </h3>
+        <div
+          onMouseEnter={() => setHoverRules(true)}
+          onMouseLeave={() => setHoverRules(false)}
+          className="lobby--container lobby-users-options"
+        >
+          <h3> OPTIONS </h3>
           <Fade in={hoverRules}>
-            <h5> DU JEU </h5>
+            <h5> DE JEU </h5>
           </Fade>
-          Le jeu est composé de 34 cartes : <br /> 14 cartes trésor (1, 2, 3, 4, 5, 5, 7, 7, 9, 11, 11, 13, 14, 15 gemmes) <br /> 15 cartes piège (3 de chaque type : feu, éboulement, momie, serpent et araignée) <br /> 5 cartes relique (artéfact) <br /> Au début du jeu, toutes les cartes trésor et piège sont mélangées ensemble, les cartes reliques (artéfacts) sont mises de côté. A chaque début d'expédition une carte relique (artéfact) est ajoutée au paquet. <br /><br /> Le jeu comporte 5 manches (expéditions). L'aventurier avec le plus de points à la fin de partie gagne : chaque gemme récoltée vaut 1 point et chaque relique (artéfact) vaut 5 points. <br /><br /> Lors du tour d'une expédition, une carte du paquet est révélée <br /> - Si un trésor est révélé, les gemmes sont partagés équitablement entre les joueurs. Les gemmes restantes sont posées sur la carte et attendent la sortie d'un aventurier. <br /> - Si une carte piège est révélée, deux cas sont possibles : <br /> - Si c'est la première carte piège de ce type apparue lors de l'expédition, il ne se passe rien. <br /> - Si c'est la deuxième, l'expédition est ratée. Tous les joueurs encore en jeu rentrent au campement sans butin. <br /> - Si l'expédition n'a pas raté (rappel : deux cartes piège identiques), l'expédition se poursuit et chaque joueur doit décider s'il reste dans l'expédition ou s'il rentre au campement. Les décisions s'effectuent secrètement puis sont révélées simultanément. <br /> <br /> Les aventuriers étant rentrés au campement ne participent plus à l'expédition. Ils récupèrent les gemmes qui étaient restées sur les cartes (celles qui n'avaient pu être partagées équitablement). Si le joueur rentre seul, il peut récupérer les reliques (artefacts) révélés. Puis, il met ses gemmes dans son coffre, elles sont protégées et ne peuvent plus être perdues. <br /><br /> L'expédition continue jusqu'à ce que tous les joueurs soient rentrés ou s'arrête dès que deux cartes piège identiques apparaissent. Si l'expédition s'est arrêtée à cause de deux cartes piège identiques, l'une des cartes piège identiques est retirée du paquet de carte. Les cartes reliques (artefacts) restantes dans le paquet sont retirées. <br /><br /> Après 5 expéditions, chaque gemme dans le coffre vaut 1 point, les reliques (artefacts) valent 5 points chacune. Les 2 dernières reliques (artefacts) valent 5 points supplémentaires. Le joueur avec le plus de points gagne. En cas d'égalité le joueur avec le plus de reliques (artéfacts) gagne.
+          <div className="lobby-users-options-list">
+            <div
+              onMouseEnter={() => setRoundOptions(true)}
+              onMouseLeave={() => setRoundOptions(false)}
+            >
+              <h6> TOURS </h6>
+              <Fade in={roundOptions}>
+                <div className="lobby-users-options-desc">
+                  Nombre de tours par partie
+                </div>
+              </Fade>
+              <RangeSlider
+                min={2}
+                max={5}
+                value={nbRound}
+                onChange={e => setNbRound(Number(e.target.value))}
+              />
+            </div>
+            <div
+              onMouseEnter={() => setPlayerOptions(true)}
+              onMouseLeave={() => setPlayerOptions(false)}
+            >
+              <h6> JOUEURS</h6>
+              <Fade in={playerOptions}>
+                <div className="lobby-users-options-desc">
+                  Nombre de joueurs max. dans une partie
+                </div>
+              </Fade>
+              <RangeSlider
+                min={2}
+                max={6}
+                value={nbPlayer}
+                onChange={e => setNbPlayer(Number(e.target.value))}
+              />
+            </div>
+            <div
+              onMouseEnter={() => setX2Options(true)}
+              onMouseLeave={() => setX2Options(false)}
+            >
+              <h6> x2 ÉTOILES </h6>
+              <Fade in={x2Options}>
+                <div className="lobby-users-options-desc">
+                  Les étoiles ne rapportent pas forcément 5 ors...
+                </div>
+              </Fade>
+              <BootstrapSwitchButton
+                onlabel={" "}
+                offlabel={" "}
+                checked={x2Stars}
+                onstyle="outline-primary"
+                offstyle="outline-secondary"
+                width={130}
+                height={5}
+                onChange={() => setx2Stars(!x2Stars)}
+              />
+            </div>
+            <div
+              onMouseEnter={() => setDupOptions(true)}
+              onMouseLeave={() => setDupOptions(false)}
+            >
+              <h6> PAS DE DOUBLONS </h6>
+              <Fade in={dupOptions}>
+                <div className="lobby-users-options-desc">
+                  Dès qu'une carte piège est pioché, c'est perdu
+                </div>
+              </Fade>
+              <BootstrapSwitchButton
+                onlabel={" "}
+                offlabel={" "}
+                checked={duplicate}
+                onstyle="outline-primary"
+                offstyle="outline-secondary"
+                width={130}
+                height={5}
+                onChange={() => setDuplicate(!duplicate)}
+              />
+            </div>
+          </div>
         </div>
-
-        <div onMouseEnter={() => setHoverUsers(true)} onMouseLeave={() => setHoverUsers(false)} className="lobby--container lobby-users-list">
+        <div
+          onMouseEnter={() => setHoverUsers(true)}
+          onMouseLeave={() => setHoverUsers(false)}
+          className="lobby--container lobby-users-list"
+        >
           <h3> JOUEURS</h3>
           <Fade in={hoverUsers}>
             <h5> ({users.length}) </h5>
@@ -60,10 +159,14 @@ const Lobby = ({ location, name, room, users }) => {
         </div>
       </div>
 
-      <div onClick={e => startGame(e)} className="lobby--container lobby-start-game">
+      <div
+        onClick={e => startGame(e)}
+        className="lobby--container lobby-start-game"
+
+      >
         LANCER LA PARTIE
       </div>
-    </div>
+    </div >
   );
 }
 

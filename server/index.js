@@ -30,7 +30,8 @@ app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 app.use(bodyParser.json());
 
 const server = http.createServer(app);
-const io = socketIO(server);
+var io = socketIO(server);
+io.sockets.server.engine.pingTimeout = 15000;
 
 app.enable('trust proxy');
 

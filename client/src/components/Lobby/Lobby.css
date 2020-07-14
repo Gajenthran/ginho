@@ -35,9 +35,41 @@
   width: 100%;
 }
 
-.div-lobby--row .lobby-users-chat {
+.div-lobby--row .lobby-users-options {
   width: 75%;
   overflow: auto;
+}
+
+.div-lobby--row .lobby-users-options>div {
+  width: 95%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  justify-items: flex-start;
+  align-content: flex-start;
+  flex-grow: 1;
+  ;
+}
+
+.div-lobby--row .lobby-users-options>div>div {
+  margin: 0 40px 30px 40px;
+}
+
+.lobby-users-options-list h6 {
+  margin-bottom: 20px;
+  font-size: 15px;
+  color: white;
+}
+
+.lobby-users-options-desc {
+  margin-top: -18px;
+  margin-bottom: 20px;
+  width: 150px;
+  height: 50px;
+  font-size: small;
+  color: white;
+  margin-bottom: 0;
 }
 
 .div-lobby--row .lobby-users-list {
@@ -81,13 +113,13 @@
   background: transparent linear-gradient(0deg, #146be2 0%, #146be2 100%) 0% 0% no-repeat padding-box;
 }
 
-.lobby-users-chat h3, .lobby-users-list h3 {
+.lobby-users-options h3, .lobby-users-list h3 {
   color: white;
   font-weight: bold;
   font-size: 25px;
 }
 
-.lobby-users-chat h5, .lobby-users-list h5 {
+.lobby-users-options h5, .lobby-users-list h5 {
   margin-top: -12px;
   margin-bottom: 20px;
   font-size: 15px;
@@ -109,10 +141,33 @@
   color: white;
 }
 
-@media (max-width: 640px) {
+.lobby-users-options-list .btn-success {
+  background-color: #5D6165;
+  border: none;
+}
+
+.lobby-users-options-list .btn-primary {
+  background: transparent linear-gradient(0deg, #146be2 0%, #146be2 100%) 0% 0% no-repeat padding-box;
+  border: none;
+}
+
+.lobby-users-options-list input[type=range].range-slider {
+  /* range-slider--primary */
+  color: red;
+}
+
+.lobby-users-options-list .btn-primary:hover, .lobby-users-options-list .btn-primary:active {
+  background-color: #146be2;
+}
+
+.lobby-users-options-list .btn-success:hover, .lobby-users-options-list .btn-success:active {
+  background-color: #5D6165;
+}
+
+@media (max-width: 768px) {
   .div-lobby {
     width: 95%;
-    height: 100%;
+    height: auto;
     flex-wrap: wrap;
     justify-content: flex-start;
     justify-items: flex-start;
@@ -121,7 +176,57 @@
     flex-direction: column;
     width: 100%;
   }
-  .lobby-title, .lobby-start-game, .div-lobby--row .lobby-users-chat, .div-lobby--row .lobby-users-list {
+  .lobby-title, .lobby-start-game, .div-lobby--row .lobby-users-options, .div-lobby--row .lobby-users-list {
     width: 95%;
+  }
+  .lobby-users-options-list {
+    flex-direction: column;
+    width: 100%;
+    margin: 0 auto;
+  }
+  .lobby-users-options-list>div {
+    text-align: center;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .lobby-users-options-list>div>div {
+    text-align: center;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .lobby-users-options-list {
+    flex-direction: column;
+    width: 100%;
+    margin: 0 auto;
+  }
+  .lobby-users-options-list>div {
+    text-align: center;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .lobby-users-options-list>div>div {
+    text-align: center;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .div-lobby {
+    width: 100%;
+    height: auto;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    justify-items: flex-start;
+    margin: 0;
+  }
+  .div-lobby--row {
+    flex-direction: column;
+    width: 100%;
+    margin: 0;
+  }
+  .lobby-title, .lobby-start-game, .div-lobby--row .lobby-users-options, .div-lobby--row .lobby-users-list {
+    width: 95%;
+    margin: 10px auto;
   }
 }

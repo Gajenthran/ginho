@@ -12,25 +12,25 @@ class Ginho {
     this.game = new Map();
   }
 
-  startGame(io, socket) {
+  startGame(io, socket, options) {
     const user = getUser(this.users, socket.id);
 
     if (!user)
       return { error: `Cannot connect with user.` }
 
-    socket.broadcast
-      .to(user.room)
-      .emit('message', { user: 'admin', text: `${user.name} has joined!` });
+    const users = getUsersInRoom(this.users, user.room);
 
-    this.game = null;
-    this.game = new Game(this.users);
-    // this.game.drawCard();
-    const gameState = this.game.getGameState();
-    this.users = gameState.users;
+    this.game.set(user.room, new Game(users, options));
+    const game = this.game.get(user.room);
+
+    if (!game)
+      return { error: 'Game don\'t exist.' }
+
+    const gameState = game.getGameState();
 
     io
       .to(user.room)
-      .emit('new-game', { gameState, room: user.room });
+      .emit('new-game', { gameState, options, room: user.room });
   }
 
 
@@ -40,14 +40,19 @@ class Ginho {
     if (!user)
       return { error: `Cannot connect with user.` }
 
-    this.game.initGame(this.users);
-    // this.game.drawCard();
-    const gameState = this.game.getGameState();
-    this.users = gameState.users;
+    const users = getUsersInRoom(this.users, user.room);
+
+    const game = this.game.get(user.room);
+
+    if (!game)
+      return { error: 'Game don\'t exist.' }
+
+    game.initGame(users);
+    const gameState = game.getGameState();
 
     io
       .to(user.room)
-      .emit('new-game', { gameState, room: user.room });
+      .emit('new-game', { gameState, options: game.getOptions(), room: user.room });
   }
 
   addUser(io, socket, { name, email, room }) {
@@ -58,18 +63,16 @@ class Ginho {
       return { error: 'Username is taken.' };
 
     const user = { id: socket.id, name, email, room };
-
     this.users.push(user);
 
     socket.join(user.room);
 
-    socket.broadcast
-      .to(user.room)
-      .emit('message', { user: 'admin', text: `${user.name} has joined!` });
-
     io
       .to(user.room)
-      .emit('room-users', { room: user.room, users: getUsersInRoom(this.users, user.room) });
+      .emit('room-users', {
+        room: user.room,
+        users: getUsersInRoom(this.users, user.room)
+      });
   }
 
   removeUser(io, socket) {
@@ -79,13 +82,22 @@ class Ginho {
       return { error: 'No player to remove.' };
 
     const user = this.users.splice(index, 1)[0];
+    const game = this.game.get(user.room);
+
+    if (!game)
+      return { error: 'Game don\'t exist.' }
+
+    game.removeUser(user.id);
 
     if (user) {
       console.log(`removeUser: ${user.id} - ${user.name}`);
 
       io
         .to(user.room)
-        .emit('room-users', { room: user.room, users: getUsersInRoom(this.users, user.room) });
+        .emit('room-users', {
+          room: user.room,
+          users: getUsersInRoom(this.users, user.room)
+        });
     }
   }
 
@@ -106,19 +118,25 @@ class Ginho {
     const index = getUserIndex(this.users, socket.id);
     const user = this.users[index];
 
-    if (user && user.checked) {
-      console.log('You can\'t two times in the same round.');
-      return { error: 'You can\'t two times in the same round.' };
+    if (!user) {
+      return { error: 'User don\'t exist.' };
+    } else {
+      if (user.checked) {
+        console.log('You can\'t two times in the same round.');
+        return { error: 'You can\'t two times in the same round.' }
+      }
     }
 
-    if (!this.game && this.game === null) {
+    const game = this.game.get(user.room);
+
+    if (!game || game === null) {
       console.log('Game is not existing.');
       return { error: 'Game is not existing.' };
     }
 
-    const allChecked = this.game.updateUser(socket.id, action);
+    const allChecked = game.updateUser(socket.id, action);
 
-    var gameState = this.game.getGameState();
+    var gameState = game.getGameState();
     this.users = gameState.users;
     gameState.allChecked = allChecked;
 
@@ -127,22 +145,22 @@ class Ginho {
       .emit('update-users-action', { gameState, room: user.room });
 
     if (allChecked) {
-      const { card, dup } = this.game.drawCard();
-      const newRound = this.game.updateGame({ card, dup });
-      gameState = this.game.getGameState();
+      const { card, dup } = game.drawCard();
+      const newRound = game.updateGame({ card, dup });
+      gameState = game.getGameState();
       gameState.newRound = newRound;
 
       io
         .to(user.room)
         .emit('update-game', {
-          noRemainingUser: newRound && !this.game.hasRemainingUsers(),
+          noRemainingUser: newRound && !game.hasRemainingUsers(),
           dupCard: dup,
           gameState,
         });
 
       if (newRound) {
-        this.game.newRound();
-        gameState = this.game.getGameState();
+        game.newRound();
+        gameState = game.getGameState();
 
         io
           .to(user.room)
@@ -150,9 +168,9 @@ class Ginho {
       }
     }
 
-    if (this.game.end()) {
-      this.game.rankUsers();
-      gameState = this.game.getGameState();
+    if (game.end()) {
+      game.rankUsers();
+      gameState = game.getGameState();
 
       io
         .to(user.room)
