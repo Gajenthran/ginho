@@ -41,7 +41,7 @@ const Home = () => {
               />
               <Link
                 onClick={e => (!name || !room) ? e.preventDefault() : null}
-                to={`/ginho?name=${name}&room=${room}`}
+                to={`/game?name=${name}&room=${room}`}
               >
                 <button className={'button mt-20'} type="submit"> REJOINDRE </button>
               </Link>

@@ -11,7 +11,7 @@ const App = () => {
   return (
     <Router>
       <Route path="/" exact component={Home} />
-      <Route path="/ginho" component={Ginho} />
+      <Route path="/game" component={Ginho} />
     </Router>
   );
 }

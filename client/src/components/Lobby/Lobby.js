@@ -130,7 +130,7 @@ const Lobby = ({ name, room, users }) => {
               <h6> PAS DE DOUBLONS </h6>
               <Fade in={dupOptions}>
                 <div className="lobby-users-options-desc">
-                  Dès qu'une carte piège est pioché, c'est perdu
+                  Dès qu'une carte piège est piochée, c'est perdu
                 </div>
               </Fade>
               <BootstrapSwitchButton
