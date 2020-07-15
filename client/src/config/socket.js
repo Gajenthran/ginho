@@ -1,7 +1,10 @@
 import openSocket from 'socket.io-client';
 
-// const ENDPOINT = "http://localhost:8080";
+/**
+ * Endpoint for socket, to emit values to the server.
+ */
 const ENDPOINT = "https://ginho.herokuapp.com/";
+// const ENDPOINT = "http://localhost:8080";
 
 const socket = openSocket(ENDPOINT);
 

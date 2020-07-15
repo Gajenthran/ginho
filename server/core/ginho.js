@@ -6,12 +6,26 @@ var {
   getUser
 } = require('./users');
 
+/**
+ * Class representing the ginho engine.
+ */
 class Ginho {
+  /**
+   * Create ginho engine.
+   */
   constructor() {
     this.users = [];
     this.game = new Map();
   }
 
+  /**
+   * Launch the game, by getting users in the room,
+   * initialize game state, and game options from the lobby.
+   * 
+   * @param {object} io - io 
+   * @param {object} socket - socket io
+   * @param {object} options - game options
+   */
   startGame(io, socket, options) {
     const user = getUser(this.users, socket.id);
 
@@ -32,7 +46,14 @@ class Ginho {
       .emit('new-game', { gameState, options, room: user.room });
   }
 
-
+  /**
+   * Launch the game, by getting users in the room and
+   * initialize game state.
+   * 
+   * @param {object} io - io 
+   * @param {object} socket - socket io
+   * @param {object} options - game options
+   */
   restartGame(io, socket) {
     const user = getUser(this.users, socket.id);
 
@@ -51,9 +72,24 @@ class Ginho {
 
     io
       .to(user.room)
-      .emit('new-game', { gameState, options: game.getOptions(), room: user.room });
+      .emit('new-game', {
+        gameState,
+        options: game.getOptions(),
+        room: user.room
+      });
   }
 
+  /**
+   * Add user in a room. If there is no room with 
+   * this name, create it.
+   * 
+   * @param {object} io - io 
+   * @param {object} socket - socket io
+   * @param {object} user - user details  
+   * @param {string} user.name - username
+   * @param {string} user.email - user email
+   * @param {string} user.room - user room
+   */
   addUser(io, socket, { name, email, room }) {
     if (!name || !room)
       return { error: 'Username and room are required.' };
@@ -89,6 +125,12 @@ class Ginho {
       });
   }
 
+  /**
+   * Remove user from the lobby or the game.
+   * 
+   * @param {object} io - io 
+   * @param {object} socket - socket io
+   */
   removeUser(io, socket) {
     const index = this.users.findIndex((user) => user.id == socket.id);
 
@@ -126,6 +168,13 @@ class Ginho {
     this.users = [];
   }
 
+  /**
+   * Update user action.
+   * 
+   * @param {object} io - io 
+   * @param {object} socket - socket io
+   * @param {*} action - user action 
+   */
   updateUser(io, socket, { action }) {
     if (!(
       typeof action === 'number' &&
@@ -170,6 +219,14 @@ class Ginho {
     return { gameState };
   }
 
+  /**
+   * Update game.
+   * 
+   * @param {object} io - io 
+   * @param {object} game - game object
+   * @param {object} user - user 
+   * @param {boolean} allChecked - check if all user have played
+   */
   updateGame(io, game, user, allChecked) {
     if (allChecked) {
       const { card, dup } = game.drawCard();
@@ -196,6 +253,14 @@ class Ginho {
     }
   }
 
+  /**
+   * Check if it is the end of the game. If it
+   * is the case, rank users.
+   * 
+   * @param {object} io - io 
+   * @param {*} game - game engine
+   * @param {*} user - user
+   */
   endGame(io, game, user) {
     if (game.end()) {
       game.rankUsers();

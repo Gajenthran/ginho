@@ -3,9 +3,15 @@ import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
 
 import './Navbar.css'
 
-
+/**
+ * Navbar component.
+ */
 const Navy = () => {
 
+  /**
+   * Render navbar links to login/logout or go
+   * to the home page.
+   */
   const renderNavLinks = () => {
     const auth = false;
     return (

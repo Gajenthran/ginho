@@ -1,11 +1,41 @@
 const fs = require('fs');
+var { getUserIndex } = require('./users');
 
-const LEAVE = 0, CONTINUE = 1;
+/**
+ * Leave action set to 0.
+ */
+const LEAVE = 0;
+
+/**
+ * Continue action set to 1.
+ */
+const CONTINUE = 1;
+
+/**
+ * Star bonus defined as 5 gold.
+ */
 const STAR_BONUS = 5;
+
+/**
+ * Get all cards from cards.json
+ */
 const CARDS_JSON = JSON.parse(fs.readFileSync(`${__dirname}/cards.json`));
+
+/**
+ * Get cards property from cards.
+ */
 const CARDS = CARDS_JSON.cards;
 
+/**
+ * Class representing the game.
+ */
 class Game {
+  /**
+   * Create the game.
+   * 
+   * @param {array} users - list of users
+   * @param {object} options - game optionss
+   */
   constructor(users, options) {
     this.users = users;
     this.gold = 0;
@@ -15,8 +45,8 @@ class Game {
     this.deck = [];
     this.remainingUsers = this.users.length;
     this.playedUser = 0;
-    this.options = options;
     // nbRound, nbPlayer, x2Stars, duplicate
+    this.options = options;
 
     for (let i = 0; i < this.users.length; i++) {
       this.users[i].left = false;
@@ -27,6 +57,65 @@ class Game {
     }
   }
 
+  /**
+   * Count played users and remaining users.
+   */
+  _countPlayedUsers() {
+    var played = 0, remaining = 0;
+    for (let i = 0; i < this.users.length; i++) {
+      if (this.users[i].checked)
+        played++;
+      if (this.users[i].left !== true)
+        remaining++;
+    }
+
+    return { played, remaining };
+  }
+
+  /**
+   * Check if there is a duplicate card.
+   * 
+   * @param {object} card - card
+   */
+  _hasDuplicates(card) {
+    for (let i = 0; i < this.deck.length; i++)
+      if (this.deck[i].element === card.element)
+        return true;
+    return false;
+  }
+
+  /**
+   * Get the remaining user.
+   */
+  _remainingUser() {
+    return this.users.filter(
+      (user) => user.left !== true
+    );
+  }
+
+  /**
+   * Get all leaving users.
+   * 
+   * @param {array} users - user
+   */
+  _leavingUsers(users) {
+    return users.filter(
+      (user) => user.action === LEAVE
+    );
+  }
+
+  /**
+   * Check if all user have played.
+   */
+  _allChecked() {
+    return this.playedUser === this.remainingUsers;
+  }
+
+  /**
+   * Initialize the game.
+   * 
+   * @param {array} users - users
+   */
   initGame(users) {
     this.users = users;
     this.gold = 0;
@@ -45,14 +134,23 @@ class Game {
     }
   }
 
+  /**
+   * Check if the game is over.
+   */
   end() {
     return this.round > this.options.nbRound;
   }
 
+  /**
+   * Get game options.
+   */
   getOptions() { return this.options }
 
+  /**
+   * Get game state.
+   */
   getGameState() {
-    // TODO: remove users values
+    // TODO: don't give all the deck 
     return {
       gold: this.gold,
       round: this.round,
@@ -64,6 +162,9 @@ class Game {
     };
   }
 
+  /**
+   * Start a new round.
+   */
   newRound() {
     this.gold = 0;
     this.cards = [...CARDS];
@@ -80,57 +181,23 @@ class Game {
     this.round++
   }
 
-  _getUser(id) {
-    return this.users.find(
-      (user) =>
-        user.id === id
-    );
-  }
-
+  /**
+   * Check if the game has a user.
+   */
   hasUser() {
     return this.users.length > 0;
   }
 
+  /**
+   * Check if there is a remaining user in a round.
+   */
   hasRemainingUsers() {
     return this.remainingUsers !== 0;
   }
 
-  _countPlayedUsers() {
-    var played = 0, remaining = 0;
-    for (let i = 0; i < this.users.length; i++) {
-      if (this.users[i].checked)
-        played++;
-      if (this.users[i].left !== true)
-        remaining++;
-    }
-
-    return { played, remaining };
-  }
-
-  _getUserIndex(id) {
-    for (let i = 0; i < this.users.length; i++)
-      if (this.users[i].id === id)
-        return i;
-    return -1;
-  }
-
-  _hasDuplicates(card) {
-    for (let i = 0; i < this.deck.length; i++)
-      if (this.deck[i].element === card.element)
-        return true;
-    return false;
-  }
-
-  _remainingUser() {
-    return this.users.filter(
-      (user) => user.left !== true
-    );
-  }
-
-  _allChecked() {
-    return this.playedUser === this.remainingUsers;
-  }
-
+  /**
+   * Draw a card. Then, check if there is a duplicate card.
+   */
   drawCard() {
     var index = Math.floor(Math.random() * (this.cards.length - 1));
     index = index < 0 ? 0 : index;
@@ -145,12 +212,14 @@ class Game {
     return { card, dup };
   }
 
-  _leavingUsers(users) {
-    return users.filter(
-      (user) => user.action === LEAVE
-    );
-  }
-
+  /**
+   * Update game, by checking if there is a duplicate card and
+   * remaining users. And also, distribute gold with users.
+   * 
+   * @param {object} gparam - game object
+   * @param {object} gparam.card - card
+   * @param {boolean} gparam.dup - check if there is a duplicate card
+   */
   updateGame({ card, dup }) {
     let leavingUsers = this._leavingUsers(this._remainingUser());
 
@@ -216,12 +285,21 @@ class Game {
     return false;
   }
 
+  /**
+   * Rank users by number of gold.
+   */
   rankUsers() {
     this.users.sort((u1, u2) => u1.gold < u2.gold ? 1 : -1);
   }
 
+  /**
+   * Update user. 
+   * 
+   * @param {string} id - user id
+   * @param {number} action - user action 
+   */
   updateUser(id, action) {
-    const index = this._getUserIndex(id);
+    const index = getUserIndex(this.users, id);
     this.users[index].checked = true;
     this.users[index].action = action;
     this.playedUser++;
@@ -229,6 +307,11 @@ class Game {
     return this._allChecked();
   }
 
+  /**
+   * Add user on the game.
+   * 
+   * @param {string} id - user id
+   */
   addUser(id) {
     const index = this.users.findIndex((user) => user.id == id);
 
@@ -246,6 +329,11 @@ class Game {
     return index !== -1;
   }
 
+  /**
+   * Remove user from the game and update the game.
+   * 
+   * @param {string} id - user id
+   */
   removeUser(id) {
     // TODO: useless but to improve
     const index = this.users.findIndex((user) => user.id == id);
