@@ -1,4 +1,3 @@
-
 <p align="center">
   <img src="https://res.cloudinary.com/dpy9htpye/image/upload/v1594824300/ginho-title.png" width="100px" height="70px"/>
 </p>
@@ -12,22 +11,23 @@ Why would you leave? Because the deck also contains hazards: bowser, blooper, pi
 ## Content
 
 The current edition of Ginho includes:
+
 - 14 gold cards (1, 2, 3, 4, 5, 5, 7, 7, 9, 11, 11, 13, 14, 15 gold)
-- 15 trap cards (3 of each type: bowser, piranha, blooper, thwomp and koopa) 
+- 15 trap cards (3 of each type: bowser, piranha, blooper, thwomp and koopa)
 - 5 star cards (by default, it gives 5 gold)
 
-There are several options such as: 
+There are several options such as:
+
 - rounds: manage the number of rounds [2; 5]
-- players: manage the number of players [2; 6] 
+- players: manage the number of players [2; 6]
 - x2 stars: star can give 0, 5 or 10 gold
 - no duplicate: one trap card is enough to loose
 
-
 ## Website
 
-You can test the game in the following website: ginho.herokuapp.com
+You can test the game in the following website: https://ginho.herokuapp.com/
 
-## Code
+## Code
 
 - React
 - NodeJS
@@ -40,7 +40,8 @@ You can test the game in the following website: ginho.herokuapp.com
 npm run dev
 ```
 
-## TODO
+## TODO
+
 - reduce transactions between server/client
 - add game options
 - multi language
