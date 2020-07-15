@@ -27,7 +27,7 @@ There are several options such as:
 
 You can test the game in the following website: ginho.herokuapp.com
 
-## Code
+## Code
 
 - React
 - NodeJS
@@ -40,7 +40,7 @@ You can test the game in the following website: ginho.herokuapp.com
 npm run dev
 ```
 
-## TODO
+## TODO
 - reduce transactions between server/client
 - add game options
 - multi language
