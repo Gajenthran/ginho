@@ -193,7 +193,11 @@
     margin-bottom: 2px;
 }
 
-.div-users--infos>div {
+.div-users--infos {
+    overflow: auto;
+}
+
+.div-users--infos-list {
     display: flex;
     flex-direction: column;
     border-bottom: 1px solid #1a1a21;
@@ -201,14 +205,14 @@
     margin-bottom: 5px;
 }
 
-.div-users--infos-list>div:last-child {
+.div-users--infos-list:last-child {
     border: none;
 }
 
 .users-spinner--loading {
     color: white;
     position: absolute;
-    bottom: 5px;
+    bottom: 10px;
     right: 10px;
     width: 20px;
     height: 20px;
@@ -241,7 +245,7 @@
     opacity: 0.22;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 968px) {
     html {
         background-color: #1a1a21;
     }
@@ -256,9 +260,6 @@
     .div-gameboard--layout {
         width: 100%;
         margin: 0;
-    }
-    .div-gameboard-deck {
-        display: none;
     }
     .div-gameboard {
         width: 100%;
@@ -321,6 +322,7 @@
     }
     .users-spinner--loading {
         width: 10px;
+        right: -20px;
         height: 10px;
     }
 }
@@ -340,9 +342,6 @@
     .div-gameboard--layout {
         width: 100%;
         margin: 0;
-    }
-    .div-gameboard-deck {
-        display: none;
     }
     .div-gameboard {
         width: 100%;
@@ -379,11 +378,11 @@
         flex-grow: 1;
         margin: 10px auto;
     }
-    .div-users--infos>div {
+    .div-users--infos-list {
         display: flex;
         flex-direction: column;
         border-bottom: none;
-        width: 70px;
+        width: 95px;
     }
     .div-users--continue .fa-gavel, .div-users--leave .fa-walking {
         font-size: 25px;
@@ -404,6 +403,7 @@
     }
     .users-spinner--loading {
         width: 10px;
+        right: -20px;
         height: 10px;
     }
 }

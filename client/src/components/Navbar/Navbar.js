@@ -65,7 +65,7 @@ const Navy = () => {
   };
 
   return (
-    <Navbar sticky="top" id="navy-diamant" className="navbar">
+    <Navbar id="navy-diamant" className="navbar">
       <Navbar.Brand href="/" className="navbar--logo-holder">
         <h1> GINHO </h1>
       </Navbar.Brand>
