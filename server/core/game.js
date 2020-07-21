@@ -17,6 +17,11 @@ const CONTINUE = 1;
 const STAR_BONUS = 5;
 
 /**
+ * Default multiplicator for the game.
+ */
+const DEF_MULT = 0;
+
+/**
  * Get all cards from cards.json
  */
 const CARDS_JSON = JSON.parse(fs.readFileSync(`${__dirname}/cards.json`));
@@ -42,10 +47,12 @@ class Game {
     this.stars = [];
     this.round = 1;
     this.cards = [...CARDS];
+    this.removedCards = [];
     this.deck = [];
     this.remainingUsers = this.users.length;
     this.playedUser = 0;
-    // nbRound, nbPlayer, x2Stars, duplicate
+    this.mult = options.mult || DEF_MULT;
+    // nbRound, nbPlayer, x2Stars, duplicate, mult
     this.options = options;
 
     for (let i = 0; i < this.users.length; i++) {
@@ -122,6 +129,8 @@ class Game {
     this.round = 1;
     this.cards = [...CARDS];
     this.deck = [];
+
+    console.log(this.cards.length, this.deck.length);
     this.remainingUsers = this.users.length;
     this.playedUser = 0;
 
@@ -168,6 +177,19 @@ class Game {
   newRound() {
     this.gold = 0;
     this.cards = [...CARDS];
+
+    for (let rc = 0; rc < this.removedCards.length; rc++) {
+      for (let c = 0; c < this.cards.length; c++) {
+        if (
+          this.cards[c].type === 0 &&
+          this.cards[c].element === this.removedCards[rc]
+        ) {
+          this.cards.splice(c, 1);
+          break;
+        }
+      }
+    }
+
     this.deck = [];
     this.remainingUsers = this.users.length;
     this.playedUser = 0;
@@ -203,11 +225,17 @@ class Game {
     index = index < 0 ? 0 : index;
     const card = this.cards[index];
 
-    const dup = this.options.duplicate ?
-      card.type === 0 : card.type === 0 && this._hasDuplicates(card);
+    const dup = card ?
+      this.options.duplicate ?
+        card.type === 0
+        : card.type === 0 && this._hasDuplicates(card)
+      : false;
 
     this.deck.push(card);
     this.cards.splice(index, 1);
+
+    if (dup)
+      this.removedCards.push(card.element);
 
     return { card, dup };
   }
@@ -262,7 +290,15 @@ class Game {
       return true;
     }
 
-    this.gold += card.name === 'gold' ? card.score : 0;
+    if(this.cards.length === 0) {
+      console.log('No cards to draw.');
+      return true;
+    }
+
+    this.gold += card.name === 'gold' ?
+      card.score + this.mult * this.deck.length :
+      0;
+
     if (card.name === 'star') {
       this.stars.push(card);
       card.activate = false;

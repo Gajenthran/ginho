@@ -26,10 +26,12 @@ const Lobby = ({ name, room, users }) => {
   const [nbPlayer, setNbPlayer] = useState(2);
   const [x2Stars, setx2Stars] = useState(false);
   const [duplicate, setDuplicate] = useState(false);
+  const [mult, setMult] = useState(0);
   const [roundOptions, setRoundOptions] = useState(false);
   const [x2Options, setX2Options] = useState(false);
   const [playerOptions, setPlayerOptions] = useState(false);
   const [dupOptions, setDupOptions] = useState(false);
+  const [multOptions, setMultOptions] = useState(false);
 
   /**
    * Start the game and emit options game to the server.
@@ -40,7 +42,7 @@ const Lobby = ({ name, room, users }) => {
     event.preventDefault();
     socket.emit(
       'start-game',
-      { nbRound, nbPlayer, x2Stars, duplicate }, (error) => {
+      { nbRound, nbPlayer, x2Stars, duplicate, mult }, (error) => {
         if (error) alert(error);
       });
   };
@@ -169,6 +171,24 @@ const Lobby = ({ name, room, users }) => {
               width={130}
               height={5}
               onChange={() => setDuplicate(!duplicate)}
+            />
+          </div>
+          <div
+            onMouseEnter={() => setMultOptions(true)}
+            onMouseLeave={() => setMultOptions(false)}
+          >
+            <h6> MULTIPLICATEUR </h6>
+            <Fade in={multOptions}>
+              <div className="lobby-users-options-desc">
+                Plus vous avancez, plus vous serez récompensé
+              </div>
+            </Fade>
+            <RangeSlider
+              min={0}
+              max={4.0}
+              step={0.5}
+              value={mult}
+              onChange={e => setMult(Number(e.target.value))}
             />
           </div>
         </div>
