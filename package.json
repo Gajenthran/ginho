@@ -8,8 +8,7 @@
     "client": "npm start --prefix client",
     "server": "nodemon server",
     "start": "node server",
-    "heroku-postbuild": "cd client && npm install && npm run build",
-    "test": "jshint server/*"
+    "heroku-postbuild": "cd client && npm install && npm run build"
   },
   "repository": {
     "type": "git",
