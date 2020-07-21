@@ -111,7 +111,7 @@ const Ginho = ({ location }) => {
             ...state,
             deck: gameState.deck
           }));
-        setDuplicatedCard(dupCard)
+        setDuplicatedCard(dupCard);
       });
   }, []);
 

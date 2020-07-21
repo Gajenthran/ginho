@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import RangeSlider from 'react-bootstrap-range-slider';
-import BootstrapSwitchButton from 'bootstrap-switch-button-react'
+import BootstrapSwitchButton from 'bootstrap-switch-button-react';
 import { Fade } from "react-bootstrap";
 
 import socket from './../../config/socket';
 
 import './Lobby.css';
+import 'react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css';
 
-import greenButtonImg from './../../assets/img/greenbutton.png'
+import greenButtonImg from './../../assets/img/greenbutton.png';
 
 /**
  * Lobby component to manage the game options and

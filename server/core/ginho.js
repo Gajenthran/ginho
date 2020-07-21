@@ -30,7 +30,7 @@ class Ginho {
     const user = getUser(this.users, socket.id);
 
     if (!user)
-      return { error: `Cannot connect with user.` }
+      return { error: `Cannot connect with user.` };
 
     const users = getUsersInRoom(this.users, user.room);
 
@@ -38,7 +38,7 @@ class Ginho {
     const game = this.game.get(user.room);
 
     if (!game)
-      return { error: 'Game don\'t exist.' }
+      return { error: 'Game don\'t exist.' };
 
     const gameState = game.getGameState(user);
     io
@@ -58,14 +58,14 @@ class Ginho {
     const user = getUser(this.users, socket.id);
 
     if (!user)
-      return { error: `Cannot connect with user.` }
+      return { error: `Cannot connect with user.` };
 
     const users = getUsersInRoom(this.users, user.room);
 
     const game = this.game.get(user.room);
 
     if (!game)
-      return { error: 'Game don\'t exist.' }
+      return { error: 'Game don\'t exist.' };
 
     game.initGame(users);
     const gameState = game.getGameState(user);
@@ -141,7 +141,7 @@ class Ginho {
     const game = this.game.get(user.room);
 
     if (!game)
-      return { error: 'Game don\'t exist.' }
+      return { error: 'Game don\'t exist.' };
 
     if (user) {
       console.log(`removeUser: ${user.id} - ${user.name}`);
@@ -192,7 +192,7 @@ class Ginho {
     } else {
       if (user.checked) {
         console.log('You can\'t two times in the same round.');
-        return { error: 'You can\'t two times in the same round.' }
+        return { error: 'You can\'t two times in the same round.' };
       }
     }
 
@@ -213,7 +213,7 @@ class Ginho {
       .to(user.room)
       .emit('update-users-action', { gameState, room: user.room });
 
-    this.updateGame(io, game, user, allChecked)
+    this.updateGame(io, game, user, allChecked);
     this.endGame(io, game, user);
 
     return { gameState };

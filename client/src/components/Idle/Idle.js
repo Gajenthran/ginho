@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import IdleTimer from 'react-idle-timer'
+import IdleTimer from 'react-idle-timer';
 
 /**
  * URL redirection.
@@ -29,7 +29,7 @@ class Idle extends Component {
    */
   _onAction = () => {
     this.setState({ isTimedOut: false })
-  }
+  };
 
   /**
    * Handle if user do nothing.
@@ -44,7 +44,7 @@ class Idle extends Component {
       this.idleTimer.current.reset();
       this.setState({ isTimedOut: true });
     }
-  }
+  };
 
   /**
    * Create React fragment to add Idle component.

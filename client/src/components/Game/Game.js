@@ -12,8 +12,8 @@ import blooperImg from './../../assets/img/blooper.png';
 import bowserImg from './../../assets/img/bowser.png';
 import koopaImg from './../../assets/img/koopa.png';
 import piranhaImg from './../../assets/img/piranha.png';
-import thwompImg from './../../assets/img/thwomp.png'
-import deckImg from './../../assets/img/deck.png'
+import thwompImg from './../../assets/img/thwomp.png';
+import deckImg from './../../assets/img/deck.png';
 
 /**
  * Leave action set to 0.
@@ -68,7 +68,7 @@ const Game = (
   const handleAction = (event, action) => {
     event.preventDefault();
     socket.emit('update-user', { action }, () => { });
-  }
+  };
 
   /**
    * Render all users in the game and show the status

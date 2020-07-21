@@ -66,7 +66,7 @@
 .navbar .navbar--link .fa-user-circle {
   font-size: 20px;
   color: white;
-  vertical-align: -5%;
+  vertical-align: -10%;
 }
 
 /* font-awesome */
@@ -107,7 +107,7 @@
 /* bootstrap */
 
 .navbar .navbar--link a.dropdown-item:active {
-  background-color: #1206A0;
+  background: transparent linear-gradient(0deg, #146be2 0%, #146be2 100%) 0% 0% no-repeat padding-box;
   color: white;
 }
 
@@ -125,4 +125,7 @@
 }
 
 @media (max-width: 640px) {
+  .navbar #account-link>span {
+    display: none;
+  }
 }

@@ -1,20 +1,20 @@
 const mysql = require('mysql');
 
-var config = {}
+var config = {};
 if (process.env.NODE_ENV === 'production') {
   config = {
     user: process.env.SQL_USER,
     password: process.env.SQL_PASSWORD,
     database: process.env.SQL_DATABASE,
-  }
+  };
 } else {
   config = {
-    user: 'root',
-    password: 'root',
-    database: 'diamant',
-    host: 'localhost',
-    port: '3306',
-  }
+    user: process.env.DEV_SQL_USER,
+    password: process.env.DEV_SQL_PASSWORD,
+    database: process.env.DEV_SQL_DATABASE,
+    host: process.env.DEV_SQL_HOST,
+    port: process.env.DEV_SQL_PORT,
+  };
 }
 
 class Database {

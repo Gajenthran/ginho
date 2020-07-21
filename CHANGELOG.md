@@ -14,12 +14,12 @@ All notable changes to this project will be documented in this file.
 - Join & quit system for started game
 - Redirection to avoid overload
 
-### Changed
+### Changed
 
 - Mobile media design
 - Data transaction between server and client
 
-### Removed
+### Removed
 
 - Useless dependencies (npm)
 
@@ -31,7 +31,7 @@ All notable changes to this project will be documented in this file.
 - Game animation
 - Mobile media design
 
-### Changed
+### Changed
 
 - Refactoring game engine (server)
 

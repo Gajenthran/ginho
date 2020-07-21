@@ -144,7 +144,7 @@ class Game {
   /**
    * Get game options.
    */
-  getOptions() { return this.options }
+  getOptions() { return this.options; }
 
   /**
    * Get game state.
@@ -178,7 +178,7 @@ class Game {
       this.users[i].action = CONTINUE;
       this.users[i].currentGold = 0;
     }
-    this.round++
+    this.round++;
   }
 
   /**
@@ -253,7 +253,7 @@ class Game {
     this.remainingUsers -= leavingUsers.length;
 
     if (!this.hasRemainingUsers()) {
-      console.log('No remaining player.')
+      console.log('No remaining player.');
       return true;
     }
 
@@ -323,7 +323,7 @@ class Game {
       this.users[index].currentGold = 0;
     }
 
-    const { played, remaining } = this._countPlayedUsers()
+    const { played, remaining } = this._countPlayedUsers();
     this.remainingUsers = remaining;
     this.playedUser = played;
     return index !== -1;
@@ -339,9 +339,9 @@ class Game {
     const index = this.users.findIndex((user) => user.id == id);
 
     if (index !== -1)
-      this.users.splice(index, 1)[0];
+      this.users.splice(index, 1);
 
-    const { played, remaining } = this._countPlayedUsers()
+    const { played, remaining } = this._countPlayedUsers();
     this.remainingUsers = remaining;
     this.playedUser = played;
   }
