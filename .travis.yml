@@ -1,13 +1,10 @@
 language: node_js
 node_js:
   - "node"
-env:
-  - JWT_KEY=secret
-  - NODE_ENV=production
 cache:
   directories:
   - node_modules
 install:
   - npm install
 script:
-  - NODE_ENV=production npm test
+  - npm test
