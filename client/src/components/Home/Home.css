@@ -1,7 +1,7 @@
 .div-home {
     margin: 0 auto;
     width: 60%;
-    height: 80%;
+    height: 90%;
     margin-top: 20px;
     margin-bottom: 20px;
     color: white;
@@ -22,8 +22,14 @@
 }
 
 .div-home--form {
+    position: relative;
     margin: 0 auto;
     width: 200px;
+    align-items: center;
+}
+
+.div-home--form .joinInput {
+    border-radius: 10px;
 }
 
 .div-home--row {
@@ -34,10 +40,6 @@
     color: white;
 }
 
-.div-home--row--game {
-    width: 60%;
-}
-
 .div-home--row--game>div {
     display: flex;
     flex-direction: column;
@@ -45,6 +47,12 @@
     margin: 0 auto;
     margin-top: 20px;
     text-align: center;
+}
+
+.div-home--row--game {
+    display: flex;
+    flex-direction: column;
+    width: 60%;
 }
 
 .div-home--row--rules {
@@ -69,7 +77,7 @@
 }
 
 .home--container {
-    border-radius: 20px;
+    border-radius: 5px;
     background-color: #262939;
     padding: 10px 15px;
     margin: 10px;
@@ -177,7 +185,7 @@
         justify-items: flex-start;
         align-content: flex-start;
         flex-grow: 1;
-        margin:0;
+        margin: 0;
     }
     .div-home--row--game {
         width: 95%;
@@ -194,4 +202,41 @@
     .div-home--row--credits-list>div:last-child {
         display: none;
     }
+}
+
+.div-avatar {
+    position: relative;
+}
+
+.avatar-img {
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+.avatar-right-arrow {
+    position: absolute;
+    width: 75px;
+    height: 75px;
+    top: 70px;
+    right: -35px;
+    cursor: pointer;
+}
+
+.avatar-right-arrow:hover, .avatar-left-arrow:hover {
+    transform: translateY(-5px);
+}
+
+.avatar-right-arrow:active, .avatar-left-arrow:active {
+    animation: pulse 1.0s ease-out infinite;
+}
+
+.avatar-left-arrow {
+    position: absolute;
+    width: 75px;
+    height: 75px;
+    top: 70px;
+    left: -35px;
+    cursor: pointer;
 }

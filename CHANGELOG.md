@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.0.3] - 2020-03-21
+
+### Added
+
+- Avatar
+- Room ID for lobby
+
+### Changed
+
+- Lobby and joining system
+- Transactions between client and server
+- Standard lint code
+
 ## [1.0.2] - 2019-07-16
 
 ### Added

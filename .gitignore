@@ -72,3 +72,5 @@ sendgrid.env
 
 # pem
 *.pem
+
+.vscode

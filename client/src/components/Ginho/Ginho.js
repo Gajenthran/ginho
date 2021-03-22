@@ -1,23 +1,29 @@
-import React, { useState, useEffect } from "react";
-import queryString from 'query-string';
+import React, { useState, useEffect } from 'react'
+import queryString from 'query-string'
+import { Spinner } from 'react-bootstrap'
 
-import socket from './../../config/socket';
+import socket from './../../config/socket'
 
-import Lobby from './../Lobby/Lobby';
-import Rank from './../Rank/Rank';
-import Game from './../Game/Game';
-import Navbar from './../Navbar/Navbar';
+import Lobby from './../Lobby/Lobby'
+import Profile from './../Profile/Profile'
+import Rank from './../Rank/Rank'
+import Game from './../Game/Game'
+import Navbar from './../Navbar/Navbar'
 
 /**
  * Ginho states with 3 states: game, lobby and rank.
  */
-const GAMESTATE = 0, LOBBYSTATE = 1, RANKSTATE = 2;
+
+const PROFILE_STATE = 0
+const LOBBYSTATE = 1
+const GAMESTATE = 2
+const RANKSTATE = 3
 
 /**
- * Ginho component with 3 states: 
+ * Ginho component with 3 states:
  * lobby component, game component
  * and rank component.
- * 
+ *
  * @param {object} location - get query string
  */
 const Ginho = ({ location }) => {
@@ -25,72 +31,89 @@ const Ginho = ({ location }) => {
     gold: 0,
     round: 1,
     nbCards: 0,
-    deck: []
-  });
-  const [users, setUsers] = useState([]);
-  const [user, setUser] = useState({});
-  const [duplicatedCard, setDuplicatedCard] = useState(false);
-  const [hasRemainingUser, setHasRemainingUser] = useState(true);
-  const [playState, setPlayState] = useState(LOBBYSTATE);
-  const [options, setOptions] = useState({});
+    deck: [],
+  })
+  const [users, setUsers] = useState([])
+  const [user, setUser] = useState({})
+  const [duplicatedCard, setDuplicatedCard] = useState(false)
+  const [hasRemainingUser, setHasRemainingUser] = useState(true)
+  const [lobbyChecked, setLobbyChecked] = useState(false)
+  const [playState, setPlayState] = useState(LOBBYSTATE)
+  const [options, setOptions] = useState({})
 
-  /**
-   * Update game state and user values.
-   * 
-   * @param {object} gState 
-   */
-  const updateGameState = (gState) => {
-    for (let i = 0; i < gState.users.length; i++)
-      if (gState.users[i].id === socket.id)
-        setUser(gState.users[i]);
-
-    setUsers(gState.users);
-    setGameState({
-      gold: gState.gold,
-      round: gState.round,
-      deck: gState.deck,
-      nbCards: gState.nbCards
-    });
-
-  };
-
-  /**
-   * Get the query string and emit the username and the room
-   * to the server, in order to join/create the room.
-   */
   useEffect(() => {
-    const { name, room } = queryString.parse(location.search);
+    socket.on('lobby:create-response', ({ user }) => {
+      setUser(user)
+      setUsers([user])
+      setPlayState(LOBBYSTATE)
+    })
+  })
 
-    setUser({
-      name,
-      room
-    });
+  useEffect(() => {
+    socket.on(
+      'lobby:join-response-user',
+      ({ user, users, gameStarted, gameState, options }) => {
+        setUser(user)
+        setUsers(users)
+        setPlayState(gameStarted ? GAMESTATE : LOBBYSTATE)
+        if (gameStarted) {
+          setGameState(gameState)
+          setOptions(options)
+        }
+      }
+    )
+  }, [])
 
-    socket.emit('join', { name, room }, ({ error }) => {
-      if (error) alert(error);
-    });
-  }, [location.search]);
+  useEffect(() => {
+    socket.on('lobby:join-response-all', ({ users }) => {
+      setUsers(users)
+    })
+  })
+
+  useEffect(() => {
+    const { room } = queryString.parse(location.search)
+    if (!lobbyChecked && room) {
+      socket.emit('lobby:check', { room })
+      socket.on('lobby:check-response', ({ error, roomExist, userExist }) => {
+        if (error) window.location.href = '/'
+        else {
+          let state = null
+          if (roomExist && userExist) state = LOBBYSTATE
+          else state = PROFILE_STATE
+          setPlayState(state)
+          setLobbyChecked(true)
+        }
+      })
+    }
+  }, [location.search, lobbyChecked])
+
 
   /**
    * Create a new game.
    */
   useEffect(() => {
-    socket.on('new-game', ({ gameState, options }) => {
-      setOptions(options);
-      updateGameState(gameState);
-      setPlayState(GAMESTATE);
-    });
-  }, []);
+    socket.on('game:new-game', ({ users, gameState, options }) => {
+      setPlayState(GAMESTATE)
+      setUser(users.find((user) => user.id === socket.id))
+      setUsers(users)
+      setGameState((prevGameState) => ({
+        ...prevGameState,
+        ...gameState,
+      }))
+      setOptions(options)
+    })
+  }, [])
 
   /**
    * Update users actions.
    */
   useEffect(() => {
-    socket.on('update-users-action', ({ error, gameState }) => {
-      if (error) alert(error);
-      updateGameState(gameState);
-    });
-  }, []);
+    socket.on('game:update-action-response', ({ users, gameState }) => {
+      setGameState((prevGameState) => ({ ...prevGameState, ...gameState }))
+      setUser(users.find((u) => u.id === socket.id))
+      setUsers(users)
+    })
+  }, [])
 
   /**
    * Update game, by updating game state, checking if there is
@@ -98,108 +121,97 @@ const Ginho = ({ location }) => {
    */
   useEffect(() => {
     socket.on(
-      'update-game',
-      ({ error, gameState, noRemainingUser, dupCard }) => {
-        if (error) alert(error);
+      'game:update-game',
+      ({ users, gameState, noRemainingUser, dupCard }) => {
+        window.scrollTo(0, 0)
 
-        window.scrollTo(0, 0);
-
-        updateGameState(gameState);
-        setHasRemainingUser(!noRemainingUser);
-        if (!noRemainingUser)
-          setGameState(state => ({
-            ...state,
-            deck: gameState.deck
-          }));
-        setDuplicatedCard(dupCard);
-      });
-  }, []);
-
-  /**
-   * Draw card.
-   */
-  useEffect(() => {
-    socket.on('draw-card', ({ error, deck }) => {
-      if (error) alert(error);
-      setGameState(state => ({
-        ...state,
-        deck: deck
-      }));
-    });
-  }, []);
+        setUser(users.find((u) => u.id === socket.id))
+        setUsers(users)
+        setHasRemainingUser(!noRemainingUser)
+        setGameState((prevGameState) => ({
+          ...prevGameState,
+          ...gameState,
+        }))
+        setDuplicatedCard(dupCard)
+      }
+    )
+  }, [])
 
   /**
    * Start a new round.
    */
   useEffect(() => {
-    socket.on('new-round', ({ error, gameState }) => {
-      if (error) alert(error);
-
+    socket.on('game:new-round', ({ users, gameState }) => {
       setTimeout(() => {
-        setDuplicatedCard(false);
-        setHasRemainingUser(true);
-        updateGameState(gameState);
-      }, 2000);
-    });
-  }, []);
+        setUser(users.find((u) => u.id === socket.id))
+        setUsers(users)
+        setDuplicatedCard(false)
+        setHasRemainingUser(true)
+        setGameState((prevGameState) => ({
+          ...prevGameState,
+          ...gameState,
+        }))
+      }, 2000)
+    })
+  }, [])
+
+  /**
+   * Go to the top of the screen.
+   */
+  useEffect(() => {
+    socket.on('game:restart-response', () => {
+      setPlayState(LOBBYSTATE)
+    })
+  }, [])
 
   /**
    * End the game. Show the rank.
    */
   useEffect(() => {
-    socket.on('end-game', ({ error, gameState }) => {
-      if (error) alert(error);
-
+    socket.on('game:end-game', ({ users }) => {
       setTimeout(() => {
-        gameState.users.sort((u1, u2) => u1.gold < u2.gold ? 1 : -1);
-        updateGameState(gameState);
-        setPlayState(RANKSTATE);
-      }, 2000);
-    });
-  }, []);
+        setUsers(users)
+        setPlayState(RANKSTATE)
+      }, 2000)
+    })
+  }, [])
 
-  /**
-   * Update room users. Add or remove users in the lobby.
-   */
   useEffect(() => {
-    socket.on("room-users", ({ users, gameStarted, gameState, gameOptions }) => {
-      setUsers(users);
-      if (gameStarted) {
-        setPlayState(GAMESTATE);
-        updateGameState(gameState);
-        setOptions(gameOptions);
-      }
-    });
-  }, []);
+    socket.on('game:disconnect', ({ users }) => {
+      setUsers(users)
+    })
+  }, [])
 
   return (
     <>
       <Navbar />
-      {playState === LOBBYSTATE ?
-        <Lobby
-          location={location}
-          name={user.name}
-          room={user.room}
+      {playState === PROFILE_STATE ? (
+        <Profile location={location} />
+      ) : playState === LOBBYSTATE ? (
+        <Lobby location={location} user={user} users={users} />
+      ) : playState === GAMESTATE ? (
+        <Game
+          socket={socket}
+          user={user}
+          gameState={gameState}
           users={users}
+          dupCard={duplicatedCard}
+          hasRemainingUser={hasRemainingUser}
+          nbRound={options.nbRound}
         />
-        : playState === GAMESTATE ?
-          <Game
-            socket={socket}
-            user={user}
-            gameState={gameState}
-            users={users}
-            dupCard={duplicatedCard}
-            hasRemainingUser={hasRemainingUser}
-            nbRound={options.nbRound}
+      ) : playState === RANKSTATE ? (
+        <Rank socket={socket} users={users} />
+      ) : (
+        <div className="spinner-container">
+          <Spinner
+            className="users-spinner--loading"
+            animation="border"
+            role="status"
           />
-          :
-          <Rank
-            socket={socket}
-            users={users}
-          />
-      }
+        </div>
+      )}
     </>
-  );
+  )
 }
 
-export default Ginho;
+export default Ginho

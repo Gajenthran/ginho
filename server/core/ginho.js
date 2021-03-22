@@ -1,10 +1,20 @@
-var Game = require('./game');
-var {
-  hasUser,
-  getUserIndex,
-  getUsersInRoom,
-  getUser
-} = require('./users');
+const Game = require('./game')
+const { hasUser, getUserIndex, getUsersInRoom, getUser } = require('./users')
+
+const ROOM_LIMIT = 8
+const KEY_LENGTH = 8
+const CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+
+const createRandomKey = () => {
+  const nbChars = CHARS.length
+  let r = 0
+  let key = ''
+  for (let i = 0; i < KEY_LENGTH; i++) {
+    r = Math.floor(Math.random() * nbChars)
+    key += CHARS[r]
+  }
+  return key
+}
 
 /**
  * Class representing the ginho engine.
@@ -14,241 +24,254 @@ class Ginho {
    * Create ginho engine.
    */
   constructor() {
-    this.users = [];
-    this.game = new Map();
+    this.users = []
+    this.game = new Map()
   }
 
   /**
    * Launch the game, by getting users in the room,
    * initialize game state, and game options from the lobby.
-   * 
-   * @param {object} io - io 
+   *
+   * @param {object} io - io
    * @param {object} socket - socket io
    * @param {object} options - game options
    */
   startGame(io, socket, options) {
-    const user = getUser(this.users, socket.id);
+    const user = getUser(this.users, socket.id)
 
-    if (!user)
-      return { error: `Cannot connect with user.` };
+    if (!user) return { error: `Cannot connect with user.` }
 
-    const users = getUsersInRoom(this.users, user.room);
+    const users = getUsersInRoom(this.users, user.room)
 
-    this.game.set(user.room, new Game(users, options));
-    const game = this.game.get(user.room);
+    if (this.game.get() !== undefined)
+      return { error: 'Cannot create the game: the room is already in game.' }
 
-    if (!game)
-      return { error: 'Game don\'t exist.' };
+    this.game.set(user.room, new Game(users, options))
+    const game = this.game.get(user.room)
 
-    const gameState = game.getGameState(user);
-    io
-      .to(user.room)
-      .emit('new-game', { gameState, options, room: user.room });
+    if (!game) return { error: "Game don't exist." }
+
+    const gameState = game.getGameState()
+    io.to(user.room).emit('game:new-game', {
+      users: game.getUsers(),
+      gameState,
+      options,
+    })
   }
 
   /**
    * Launch the game, by getting users in the room and
    * initialize game state.
-   * 
-   * @param {object} io - io 
+   *
+   * @param {object} io - io
    * @param {object} socket - socket io
    * @param {object} options - game options
    */
   restartGame(io, socket) {
-    const user = getUser(this.users, socket.id);
+    const user = getUser(this.users, socket.id)
 
-    if (!user)
-      return { error: `Cannot connect with user.` };
+    if (!user) return { error: `Cannot connect with user.` }
 
-    const users = getUsersInRoom(this.users, user.room);
+    const game = this.game.get(user.room)
 
-    const game = this.game.get(user.room);
+    if (!game) return { error: "Game don't exist." }
 
-    if (!game)
-      return { error: 'Game don\'t exist.' };
+    this.game.delete(user.room)
 
-    game.initGame(users);
-    const gameState = game.getGameState(user);
-
-    io
-      .to(user.room)
-      .emit('new-game', {
-        gameState,
-        options: game.getOptions(),
-        room: user.room
-      });
+    io.to(user.room).emit('game:restart-response')
   }
 
-  /**
-   * Add user in a room. If there is no room with 
-   * this name, create it.
-   * 
-   * @param {object} io - io 
-   * @param {object} socket - socket io
-   * @param {object} user - user details  
-   * @param {string} user.name - username
-   * @param {string} user.email - user email
-   * @param {string} user.room - user room
-   */
-  addUser(io, socket, { name, email, room }) {
-    if (!name || !room)
-      return { error: 'Username and room are required.' };
-
-    if (hasUser(this.users, name, room))
-      return { error: 'Username is taken.' };
-
-    const user = { id: socket.id, name, email, room };
-    this.users.push(user);
-
-    let gameStarted = false,
-      gameState = null,
-      gameOptions = null;
-
-    const game = this.game.get(room);
-
-    if (game) {
-      gameStarted = game.addUser(user.id);
-      gameState = game.getGameState(user);
-      gameOptions = game.getOptions();
+  createLobby(io, socket, { user, room }) {
+    if (!(user.name || room)) {
+      return { error: 'Username and room are required.' }
     }
 
-    socket.join(user.room);
+    if (hasUser(this.users, user.name, room)) {
+      return { error: 'Username is taken.' }
+    }
 
-    io
-      .to(user.room)
-      .emit('room-users', {
-        room: user.room,
-        users: getUsersInRoom(this.users, user.room),
-        gameStarted,
-        gameState,
-        gameOptions
-      });
+    user.id = socket.id
+    user.room = room
+    this.users.unshift(user)
+
+    const game = this.game.get(room)
+
+    if (game) {
+      let attempt = 3
+      let key = room
+      while (attempt) {
+        key = createRandomKey()
+        if (!this.game.get(key)) break
+        attempt--
+      }
+      if (!attempt) return { error: 'Game already created.' }
+      user.room = key
+    }
+
+    socket.join(user.room)
+
+    io.to(user.room).emit('lobby:create-response', { user })
+  }
+
+  checkLobby(io, socket, { room }) {
+    let error = false
+    if (!room || !room.length === ROOM_LIMIT) error = true
+
+    const roomExist = io.sockets.adapter.rooms[room] || false
+    let userExist = false
+
+    if (roomExist) userExist = io.sockets.adapter.rooms[room].sockets[socket.id]
+
+    io.to(socket.id).emit('lobby:check-response', {
+      error,
+      roomExist,
+      userExist,
+    })
+  }
+
+  joinLobby(io, socket, { user, room }) {
+    user.id = socket.id
+    user.room = room
+    this.users.unshift(user)
+    socket.join(user.room)
+
+    let gameStarted = false
+    let gameState = null
+    let options = null
+
+    const game = this.game.get(room)
+
+    if (game) {
+      game.addUser(user)
+      gameStarted = true
+      gameState = { ...game.getGameState() }
+      options = game.getOptions()
+    }
+
+    io.to(socket.id).emit('lobby:join-response-user', {
+      user,
+      users: getUsersInRoom(this.users, user.room),
+      gameStarted,
+      gameState,
+      options,
+    })
+
+    socket.broadcast.to(user.room).emit('lobby:join-response-all', {
+      users: this.users
+    })
   }
 
   /**
    * Remove user from the lobby or the game.
-   * 
-   * @param {object} io - io 
+   *
+   * @param {object} io - io
    * @param {object} socket - socket io
    */
   removeUser(io, socket) {
-    const index = this.users.findIndex((user) => user.id == socket.id);
+    const index = this.users.findIndex((user) => user.id === socket.id)
 
-    if (index === -1)
-      return { error: 'No player to remove.' };
+    const user = this.users[index]
 
-    const user = this.users.splice(index, 1)[0];
-    const game = this.game.get(user.room);
+    if (index > -1) {
+      const room = user.room
+      const game = this.game.get(room)
+      if (game) {
+        game.removeUser(user.id)
+        if (game.getUsers().length === 0) this.game.delete(room)
+        this.updateGame(io, game, room, game.allChecked())
+        this.users.splice(index, 1)
 
-    if (!game)
-      return { error: 'Game don\'t exist.' };
-
-    if (user) {
-      console.log(`removeUser: ${user.id} - ${user.name}`);
-      game.removeUser(user.id);
-
-      if (game.hasUser()) {
-        this.updateGame(io, game, user, game._allChecked());
-        this.endGame(io, game, user);
+        io.to(user.room).emit('game:disconnect', {
+          users: getUsersInRoom(game.getUsers(), user.room),
+        })
       } else {
-        this.game.delete(user.room);
+        this.users.splice(index, 1)
+        io.to(user.room).emit('game:disconnect', {
+          users: getUsersInRoom(this.users, room),
+        })
       }
-
-      io
-        .to(user.room)
-        .emit('room-users', {
-          room: user.room,
-          users: getUsersInRoom(this.users, user.room)
-        });
     }
   }
 
   // TODO: clear all users in the lobby
   removeAllUser() {
-    this.users = [];
+    this.users = []
   }
 
   /**
    * Update user action.
-   * 
-   * @param {object} io - io 
+   *
+   * @param {object} io - io
    * @param {object} socket - socket io
-   * @param {*} action - user action 
+   * @param {*} action - user action
    */
-  updateUser(io, socket, { action }) {
-    if (!(
-      typeof action === 'number' &&
-      (action === 1 || action === 0)
-    )) {
-      console.log('It is not an appropriate action.');
-      return { error: 'It is not an appropriate action.' };
+  updateAction(io, socket, { action }) {
+    if (!(typeof action === 'number' && (action === 1 || action === 0))) {
+      console.log('It is not an appropriate action.')
+      return { error: 'It is not an appropriate action.' }
     }
 
-    const index = getUserIndex(this.users, socket.id);
-    const user = this.users[index];
+    const index = getUserIndex(this.users, socket.id)
+    const user = this.users[index]
 
     if (!user) {
-      return { error: 'User don\'t exist.' };
+      return { error: "User don't exist." }
     } else {
       if (user.checked) {
-        console.log('You can\'t two times in the same round.');
-        return { error: 'You can\'t two times in the same round.' };
+        console.log("You can't two times in the same round.")
+        return { error: "You can't two times in the same round." }
       }
     }
 
-    const game = this.game.get(user.room);
+    const game = this.game.get(user.room)
 
     if (!game || game === null) {
-      console.log('Game is not existing.');
-      return { error: 'Game is not existing.' };
+      console.log('Game is not existing.')
+      return { error: 'Game is not existing.' }
     }
 
-    const allChecked = game.updateUser(socket.id, action);
+    const allChecked = game.updateAction(socket.id, action)
+    const gameState = game.getGameState()
+    const users = game.getUsers()
 
-    var gameState = game.getGameState(user);
-    this.users = gameState.users;
-    gameState.allChecked = allChecked;
+    io.to(user.room).emit('game:update-action-response', {
+      users,
+      gameState,
+    })
 
-    io
-      .to(user.room)
-      .emit('update-users-action', { gameState, room: user.room });
-
-    this.updateGame(io, game, user, allChecked);
-    this.endGame(io, game, user);
-
-    return { gameState };
+    this.updateGame(io, game, user.room, allChecked)
+    this.endGame(io, game, user)
   }
 
   /**
    * Update game.
-   * 
-   * @param {object} io - io 
+   *
+   * @param {object} io - io
    * @param {object} game - game object
-   * @param {object} user - user 
+   * @param {object} user - user
    * @param {boolean} allChecked - check if all user have played
    */
-  updateGame(io, game, user, allChecked) {
+  updateGame(io, game, room, allChecked) {
     if (allChecked) {
-      const { card, dup } = game.drawCard();
-      const newRound = game.updateGame({ card, dup });
-      let gameState = game.getGameState(user);
-      gameState.newRound = newRound;
+      const { card, dup } = game.drawCard()
+      const newRound = game.updateGame({ card, dup })
+      let gameState = game.getGameState()
+      gameState.newRound = newRound
 
-      io
-        .to(user.room)
-        .emit('update-game', {
-          noRemainingUser: newRound && !game.hasRemainingUsers(),
-          dupCard: dup,
-          gameState
-        });
+      io.to(room).emit('game:update-game', {
+        users: game.getUsers(),
+        gameState,
+        noRemainingUser: newRound && !game.hasRemainingUsers(),
+        dupCard: dup
+      })
 
       if (newRound) {
-        game.newRound();
-        gameState = game.getGameState(user);
-
-        io
-          .to(user.room)
-          .emit('new-round', { gameState, room: user.room });
+        game.newRound()
+        gameState = game.getGameState()
+        io.to(room).emit('game:new-round', {
+          users: game.getUsers(),
+          gameState
+        })
       }
     }
   }
@@ -256,22 +279,17 @@ class Ginho {
   /**
    * Check if it is the end of the game. If it
    * is the case, rank users.
-   * 
-   * @param {object} io - io 
+   *
+   * @param {object} io - io
    * @param {*} game - game engine
    * @param {*} user - user
    */
   endGame(io, game, user) {
     if (game.end()) {
-      game.rankUsers();
-      let gameState = game.getGameState(user);
-
-      io
-        .to(user.room)
-        .emit('end-game', { gameState, room: user.room });
+      game.rankUsers()
+      io.to(user.room).emit('game:end-game', { users: game.getUsers() })
     }
   }
 }
 
-
-module.exports = new Ginho();
+module.exports = new Ginho()

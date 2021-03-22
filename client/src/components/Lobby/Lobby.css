@@ -3,7 +3,6 @@
   width: 60%;
   height: 80%;
   margin-top: 20px;
-  margin-bottom: 20px;
   color: white;
   display: flex;
   flex-direction: column;
@@ -18,10 +17,11 @@
 }
 
 .lobby--container {
-  border-radius: 20px;
+  border-radius: 5px;
   background-color: #262939;
   padding: 10px 15px;
-  margin: 10px;
+  margin: 5px;
+  margin-bottom: 15px;
   /* cursor: pointer; */
   color: white;
 }
@@ -29,7 +29,7 @@
 .div-lobby--row {
   display: flex;
   flex-direction: row;
-  height: 65%;
+  height: 90%;
   justify-content: space-between;
   color: white;
   width: 100%;
@@ -76,7 +76,14 @@
 }
 
 .lobby-start-game {
-  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  margin: 0 auto;
+  width: 80%;
+}
+
+.lobby-start-game button {
+  width: 250px;
   height: 50px;
   text-align: center;
   background: none;
@@ -102,12 +109,12 @@
   cursor: pointer;
 }
 
-.lobby-start-game:active {
+.lobby-start-game button:active {
   -webkit-transform: scale(.9);
   transform: scale(.9);
 }
 
-.lobby-start-game:hover {
+.lobby-start-game button:hover {
   border: none;
   background: transparent linear-gradient(0deg, #146be2 0%, #146be2 100%) 0% 0% no-repeat padding-box;
 }
@@ -134,10 +141,15 @@
 
 .lobby-users--name img {
   margin-right: 10px;
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
 }
 
 .lobby-users--name {
+  font-size: 20px;
   color: white;
+  margin-bottom: 5px;
 }
 
 .lobby-users-options-list .btn-success {

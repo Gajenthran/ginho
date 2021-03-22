@@ -42,10 +42,7 @@ npm run dev
 
 ## TODO
 
-- reduce transactions between server/client
-- add game options
 - multi language
 - Google account
-- add database
 - add user stats
 - change domain name
