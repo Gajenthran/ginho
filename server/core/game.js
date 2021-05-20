@@ -50,7 +50,8 @@ class Game {
     this.stars = []
     this.round = 1
     this.cards = [...CARDS]
-    this.removedCards = []
+    this.rawCards = [...CARDS]
+    this.removedCard = null
     this.deck = []
     this.remainingUsers = this.users.length
     this.playedUser = 0
@@ -88,7 +89,7 @@ class Game {
    */
   _hasDuplicates(card) {
     for (let i = 0; i < this.deck.length; i++)
-      if (this.deck[i].element === card.element) return true
+      if (this.deck[i].name === card.name) return true
     return false
   }
 
@@ -171,21 +172,14 @@ class Game {
    * Start a new round.
    */
   newRound() {
-    this.gold = 0
-    this.cards = [...CARDS]
-
-    for (let rc = 0; rc < this.removedCards.length; rc++) {
-      for (let c = 0; c < this.cards.length; c++) {
-        if (
-          this.cards[c].type === 0 &&
-          this.cards[c].element === this.removedCards[rc]
-        ) {
-          this.cards.splice(c, 1)
-          break
-        }
-      }
+    if(this.removedCard) {
+      const index = this.rawCards.findIndex((c) => this.removedCard === c.id);
+      if(index !== -1)
+        this.rawCards.splice(index, 1)
     }
 
+    this.gold = 0
+    this.cards = [...this.rawCards]
     this.deck = []
     this.remainingUsers = this.users.length
     this.playedUser = 0
@@ -234,7 +228,7 @@ class Game {
     this.deck.push(card)
     this.cards.splice(index, 1)
 
-    if (dup) this.removedCards.push(card.element)
+    if (dup) this.removedCard = card.id
 
     return { card, dup }
   }
@@ -283,6 +277,7 @@ class Game {
 
     if (dup) {
       console.log('Duplicated card. You loose.')
+      console.log(this.deck)
       return true
     }
 
@@ -314,6 +309,14 @@ class Game {
     this.playedUser = 0
 
     return false
+  }
+
+  checkAllLeaving() {
+    for(let u = 0; u < this.users.length; u++) {
+      if(this.users[u].action === CONTINUE)
+        return false;
+    }
+    return true;
   }
 
   /**

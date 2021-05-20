@@ -46,7 +46,7 @@ class Ginho {
     if (this.game.get() !== undefined)
       return { error: 'Cannot create the game: the room is already in game.' }
 
-    this.game.set(user.room, new Game(users, options))
+    this.game.set(user.room, new Game(users, options, socket.id))
     const game = this.game.get(user.room)
 
     if (!game) return { error: "Game don't exist." }
@@ -253,6 +253,7 @@ class Ginho {
    */
   updateGame(io, game, room, allChecked) {
     if (allChecked) {
+      const isAllLeaving = game.checkAllLeaving()
       const { card, dup } = game.drawCard()
       const newRound = game.updateGame({ card, dup })
       let gameState = game.getGameState()
@@ -262,7 +263,8 @@ class Ginho {
         users: game.getUsers(),
         gameState,
         noRemainingUser: newRound && !game.hasRemainingUsers(),
-        dupCard: dup
+        dupCard: dup,
+        isAllLeaving
       })
 
       if (newRound) {

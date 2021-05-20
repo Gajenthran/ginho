@@ -1,19 +1,19 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { ProgressBar, Spinner } from 'react-bootstrap'
 
 import './Game.css'
 
 import goldImg from './../../assets/img/gold.png'
 import starImg from './../../assets/img/star.png'
-import greenButtonImg from './../../assets/img/greenbutton.png'
-import redButtonImg from './../../assets/img/redbutton.png'
-import whiteButtonImg from './../../assets/img/whitebutton.png'
 import blooperImg from './../../assets/img/blooper.png'
 import bowserImg from './../../assets/img/bowser.png'
 import koopaImg from './../../assets/img/koopa.png'
 import piranhaImg from './../../assets/img/piranha.png'
 import thwompImg from './../../assets/img/thwomp.png'
 import deckImg from './../../assets/img/deck.png'
+import blockUsedImg from './../../assets/img/block-used.png'
+
+import fullScreenImg from './../../assets/img/full-screen.png'
 
 /**
  * Leave action set to 0.
@@ -31,10 +31,10 @@ const CONTINUE = 1
 const CARDS_IMG = {
   gold: { img: goldImg, name: 'PIÈCES' },
   star: { img: starImg, name: 'ÉTOILES' },
-  fire: { img: blooperImg, name: 'BLOOPER' },
+  fire: { img: blooperImg, name: 'SPINY' },
   water: { img: koopaImg, name: 'KOOPA' },
   wind: { img: piranhaImg, name: 'PIRANHA' },
-  earth: { img: thwompImg, name: 'THWOMP' },
+  earth: { img: thwompImg, name: 'GOOMBA' },
   space: { img: bowserImg, name: 'BOWSER' },
 }
 
@@ -60,7 +60,11 @@ const Game = ({
   dupCard,
   hasRemainingUser,
   nbRound,
+  onFullscreen
 }) => {
+  const [showDraw, setShowDraw] = useState(false)
+  const [showDrawnCard, setShowDrawnCard] = useState(null)
+
   /**
    * Handle user action (either continue the
    * round, or exit). Then, emit the user action
@@ -74,6 +78,23 @@ const Game = ({
     socket.emit('game:update-action', { action })
   }
 
+  useEffect(() => {
+    socket.on(
+      'game:update-game',
+      ({ gameState, isAllLeaving }) => {
+        if(!isAllLeaving) {
+          setShowDrawnCard(gameState.deck[gameState.deck.length - 1])
+          setShowDraw(true)
+
+          setTimeout(() => {
+            setShowDraw(false)
+            setShowDrawnCard(null)
+          }, 1000);
+        }
+      }
+    )
+  }, [socket])
+
   /**
    * Render all users in the game and show the status
    * of each user (white = leaving status, red =
@@ -83,52 +104,26 @@ const Game = ({
   const renderUsers = () => {
     return (
       <div className="div-container div-users--infos">
-        <div className="div-users--infos-list" key={socket.id}>
-          <div className="div-users--name">
-            <img
-              src={
-                user.left
-                  ? whiteButtonImg
-                  : user.checked
-                    ? greenButtonImg
-                    : redButtonImg
+        {users.map((usr) => (
+          <div className="div-users--infos-list" key={usr.id}>
+            <div className="div-users--name">
+              <img
+                className="div-users--name--avatar"
+                src={usr.img}
+                alt="check-button"
+                style={usr.left || usr.checked ? { filter: 'grayscale(1)' } : null}
+              />
+              {usr.name}
+            </div>
+            <div className="div-users--gold">
+              <img src={goldImg} alt="gold" />
+              {usr.id === socket.id ?
+                <div> {user.currentGold} <span> ({user.gold}) </span> </div> :
+                <div> {usr.currentGold} </div>
               }
-              alt="green-button"
-            />
-            {user.name}
-          </div>
-          <div className="div-users--gold">
-            <img src={goldImg} alt="gold" />
-            <div>
-              {' '}
-              {user.currentGold} <span> ({user.gold}) </span>
             </div>
           </div>
-        </div>
-        {users.map(
-          (usr) =>
-            usr.id !== socket.id && (
-              <div className="div-users--infos-list" key={usr.id}>
-                <div className="div-users--name">
-                  <img
-                    src={
-                      usr.left
-                        ? whiteButtonImg
-                        : usr.checked
-                          ? greenButtonImg
-                          : redButtonImg
-                    }
-                    alt="check-button"
-                  />
-                  {usr.name}
-                </div>
-                <div className="div-users--gold">
-                  <img src={goldImg} alt="gold" />
-                  <div> {usr.currentGold} </div>
-                </div>
-              </div>
-            )
-        )}
+        ))}
         {(dupCard || !hasRemainingUser) && (
           <Spinner
             className="users-spinner--loading"
@@ -140,46 +135,64 @@ const Game = ({
     )
   }
 
+  const renderCards = (card) => {
+    const activatedCard = card.name === 'star' && card.activate
+
+    return (
+      <div>
+        <img
+          src={CARDS_IMG[card.name].img}
+          alt={card.name}
+          style={activatedCard ? { filter: 'grayscale(1)' } : null}
+        />
+        {
+          card.name === 'gold' && (
+            <p className="div-gameboard--card-score">
+              {card.score}
+            </p>
+          )
+        }
+      </div>
+    )
+  }
+
   /**
    * Render the list of drawn cards.
    */
   const renderDeck = () => {
     return (
       <div className="div-container div-gameboard--board">
-        {gameState.deck.map((card, index) => (
-          <div className="div-gameboard--card" key={card.id}>
-            <div>
-              {card.name === 'gold' ? (
-                <>
-                  <img src={CARDS_IMG[card.name].img} alt="gold" />
-                  <div className="div-gameboard--card-gold">
-                    {' '}
-                    {card.score}
-                    <span> {CARDS_IMG[card.name].name} </span>
-                  </div>
-                </>
-              ) : card.name === 'trap' ? (
-                <>
-                  <img src={CARDS_IMG[card.element].img} alt="trap" />
-                  <div className="div-gameboard--card-trap">
-                    {CARDS_IMG[card.element].name}
-                  </div>
-                </>
-              ) : card.name === 'star' ? (
-                <>
-                  <img
-                    src={CARDS_IMG[card.name].img}
-                    alt="star"
-                    style={card.activate ? { filter: 'grayscale(1)' } : null}
-                  />
-                  <div className="div-gameboard--card-star">
-                    {CARDS_IMG[card.name].name}
-                  </div>
-                </>
-              ) : (
-                'Problem with database.'
-              )}
+        {
+          (showDraw && showDrawnCard) ? (
+            <div id="gameboard--empty-img">
+              <img 
+                id="gameboard--reveal-img"
+                src={CARDS_IMG[showDrawnCard.name].img}
+                alt="deck" 
+                style={{
+                  visibility: "visible",
+                  transform: "translate3d(0, -0, 0)"
+                }}
+              />
+              <img 
+                id="gameboard--block-img" 
+                src={blockUsedImg} 
+                alt="deck" 
+                style={{
+                  animation: "block-pop .25s linear"
+                }}
+              />
             </div>
+          ) : (
+            <div id="gameboard--empty-img">
+              <img id="gameboard--reveal-img" src={deckImg} alt="deck" />
+              <img id="gameboard--block-img" src={deckImg} alt="deck" />
+            </div>
+          )
+        }
+        {gameState.deck.slice(0).reverse().map((card) => (
+          <div className="div-gameboard--card" key={card.id}>
+            {renderCards(card)}
           </div>
         ))}
       </div>
@@ -190,58 +203,21 @@ const Game = ({
    * Render the list of drawn cards but highlight duplicate
    * card.
    */
-  const renderDeckHidden = () => {
+  const renderDeckHighlight = () => {
     const lCard = gameState.deck[gameState.deck.length - 1]
     return (
       <div className="div-container div-gameboard--board">
-        {gameState.deck.map((card) => (
+        {gameState.deck.slice(0).reverse().map((card) => (
           <div
-            className={
-              lCard.name === 'trap' &&
-                lCard.name === card.name &&
-                lCard.element === card.element
-                ? 'div-gameboard--card'
-                : 'div-gameboard--card card-transparent'
-            }
             key={card.id}
+            className={
+              lCard.type === 0 &&
+                lCard.name === card.name ?
+                'div-gameboard--card' :
+                'div-gameboard--card card-transparent'
+            }
           >
-            <div>
-              {lCard.name === 'trap' &&
-                lCard.name === card.name &&
-                lCard.element === card.element ? (
-                <>
-                  <img src={CARDS_IMG[card.element].img} alt="trap" />
-                  <div className="div-gameboard--card-trap">
-                    {CARDS_IMG[card.element].name}
-                  </div>
-                </>
-              ) : card.name === 'gold' ? (
-                <>
-                  <img src={CARDS_IMG[card.name].img} alt="gold" />
-                  <div className="div-gameboard--card-gold">
-                    {' '}
-                    {card.score}
-                    <span> {CARDS_IMG[card.name].name} </span>
-                  </div>
-                </>
-              ) : card.name === 'trap' ? (
-                <>
-                  <img src={CARDS_IMG[card.element].img} alt="gold" />
-                  <div className="div-gameboard--card-trap">
-                    {CARDS_IMG[card.element].name}
-                  </div>
-                </>
-              ) : card.name === 'star' ? (
-                <>
-                  <img src={CARDS_IMG[card.name].img} alt="gold" />
-                  <div className="div-gameboard--card-star">
-                    {CARDS_IMG[card.name].name}
-                  </div>
-                </>
-              ) : (
-                'Problem with database.'
-              )}
-            </div>
+            {renderCards(card)}
           </div>
         ))}
       </div>
@@ -300,17 +276,25 @@ const Game = ({
   }
 
   return (
-    <div className="div-game">
-      <div className="div-game--layout">
-        <div className="div-gameboard--layout">
-          {renderInfos()}
-          <div className="div-container div-gameboard--board">
-            {dupCard ? renderDeckHidden() : renderDeck()}
+    <div id="game-container-id" className="div-game-container">
+      <img 
+        className="game-full-screen" 
+        src={fullScreenImg}
+        onClick={onFullscreen}
+        alt="full-screen"
+      />
+      <div className="div-game">
+        <div className="div-game--layout">
+          <div className="div-gameboard--layout">
+            {renderInfos()}
+            <div className="div-container div-gameboard--board">
+              {dupCard ? renderDeckHighlight() : renderDeck()}
+            </div>
           </div>
-        </div>
-        <div id="div-users--container">
-          {renderUsers()}
-          {renderUserAction()}
+          <div id="div-users--container">
+            {renderUsers()}
+            {renderUserAction()}
+          </div>
         </div>
       </div>
     </div>

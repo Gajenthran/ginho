@@ -204,7 +204,7 @@ const Lobby = ({ user, users }) => {
   }
 
   return (
-    <>
+    <div className="lobby-screen">
       {user ? (
         <div className="div-lobby">
           <div className="div-lobby--row">
@@ -220,7 +220,7 @@ const Lobby = ({ user, users }) => {
       ) : (
         <div></div>
       )}
-    </>
+    </div>
   )
 }
 

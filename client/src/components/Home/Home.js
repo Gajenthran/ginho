@@ -175,15 +175,17 @@ const Home = () => {
   return (
     <>
       <Navbar />
-      <div className="div-home">
-        <div className="div-home--row">
-          {renderGame()}
-          {renderRules()}
-        </div>
-        <div className="div-home--row--credits-list">
-          {renderCredits()}
-          <div className="home--container"> </div>
-        </div>
+        <div className="home-screen">
+          <div className="div-home">
+            <div className="div-home--row">
+              {renderGame()}
+              {renderRules()}
+            </div>
+            <div className="div-home--row--credits-list">
+              {renderCredits()}
+              <div className="home--container"> </div>
+            </div>
+          </div>
       </div>
     </>
   )

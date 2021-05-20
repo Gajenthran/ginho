@@ -86,107 +86,92 @@
     },
     {
       "id": 16,
-      "name": "trap",
+      "name": "fire",
       "type": 0,
-      "element": "fire",
       "score": -1
     },
     {
       "id": 17,
-      "name": "trap",
+      "name": "fire",
       "type": 0,
-      "element": "fire",
       "score": -1
     },
     {
       "id": 18,
-      "name": "trap",
+      "name": "fire",
       "type": 0,
-      "element": "fire",
       "score": -1
     },
     {
       "id": 19,
-      "name": "trap",
+      "name": "water",
       "type": 0,
-      "element": "water",
       "score": -1
     },
     {
       "id": 20,
-      "name": "trap",
+      "name": "water",
       "type": 0,
-      "element": "water",
       "score": -1
     },
     {
       "id": 21,
-      "name": "trap",
+      "name": "water",
       "type": 0,
-      "element": "water",
       "score": -1
     },
     {
       "id": 22,
-      "name": "trap",
+      "name": "wind",
       "type": 0,
-      "element": "wind",
       "score": -1
     },
     {
       "id": 23,
-      "name": "trap",
+      "name": "wind",
       "type": 0,
-      "element": "wind",
       "score": -1
     },
     {
       "id": 24,
-      "name": "trap",
+      "name": "wind",
       "type": 0,
-      "element": "wind",
       "score": -1
     },
     {
       "id": 25,
-      "name": "trap",
+      "name": "earth",
       "type": 0,
-      "element": "earth",
       "score": -1
     },
     {
       "id": 26,
-      "name": "trap",
+      "name": "earth",
       "type": 0,
-      "element": "earth",
       "score": -1
     },
     {
       "id": 27,
-      "name": "trap",
+      "name": "earth",
       "type": 0,
-      "element": "earth",
       "score": -1
     },
     {
       "id": 28,
-      "name": "trap",
+      "name": "space",
       "type": 0,
-      "element": "space",
       "score": -1
     },
     {
       "id": 29,
-      "name": "trap",
+      "name": "space",
       "type": 0,
-      "element": "space",
       "score": -1
     },
     {
       "id": 30,
-      "name": "trap",
+      "name": "space",
       "type": 0,
-      "element": "space",
       "score": -1
     },
     {

@@ -94,15 +94,45 @@ const Profile = ({ location }) => {
         </Fade>
         <div>
           <div className="div-home--row--rules-desc">
-            1. Choisir un mot parmi la liste donnée <br />
-            <br />
-            2. Tentez de le faire deviner aux autres joueurs à travers les
-            concepts sur les icônes. 4 familles de concepts peuvent être
-            réalisées. Dans chacune d&apos;elle, nous aurons 1 concept principal
-            et 4 concepts secondaires. <br />
-            <br />
-            3. La distribution des points se fera en fonction de la rapidité à
-            laquelle les autres joueurs trouvent le mot. <br />
+            Le jeu est composé de 34 cartes : <br /> 14 cartes Or (1, 2, 3, 4,
+            5, 5, 7, 7, 9, 11, 11, 13, 14, 15 Ors) <br /> 15 cartes Piège (3 de
+            chaque type : Bowser, Piranha, Blooper, Koopa et Thwomp) <br /> 5
+            cartes Étoiles (artéfact) <br /> Au début du jeu, toutes les cartes
+            sont mélangées ensemble. <br />
+            <br /> Le jeu comporte 5 manches. L&apos;aventurier avec le plus de
+            points à la fin de partie gagne : chaque or récolté vaut 1 point et
+            chaque étoile vaut 5 points. <br />
+            <br /> Lors du tour d&apos;une aventure, une carte du paquet est
+            révélée <br /> - Si une carte Or est révélée, les ors sont partagés
+            équitablement entre les joueurs. Les ors restants sont posés dans la
+            trésorie et attendent la sortie d&apos;un aventurier. <br /> - Si
+            une carte Piège est révélée, deux cas sont possibles : <br /> - Si
+            c&apos;est la première carte Piège de ce type apparue lors de
+            l&apos;expédition, il ne se passe rien. <br /> - Si c&apos;est la
+            deuxième, l&apos;expédition est ratée. Tous les joueurs encore en
+            jeu rentrent au campement sans butin. <br /> - Si l&apos;expédition
+            n&apos;a pas raté (rappel : deux cartes Piège identiques),
+            l&apos;expédition se poursuit et chaque joueur doit décider
+            s&apos;il reste dans l&apos;expédition ou s&apos;il rentre au
+            campement. Les décisions s&apos;effectuent secrètement puis sont
+            révélées simultanément. <br /> <br /> Les aventuriers étant rentrés
+            au campement ne participent plus à l&apos;expédition. Ils récupèrent
+            les ors qui étaient restées sur les cartes (celles qui
+            n&apos;avaient pu être partagées équitablement). Si le joueur rentre
+            seul, il peut récupérer les étoiles (artefacts) révélés. Puis, il
+            met ses ors dans son coffre, elles sont protégées et ne peuvent plus
+            être perdues. <br />
+            <br /> L&apos;expédition continue jusqu&apos;à ce que tous les
+            joueurs soient rentrés ou s&apos;arrête dès que deux cartes piège
+            identiques apparaissent. Si l&apos;expédition s&apos;est arrêtée à
+            cause de deux cartes Piège identiques, l&apos;une des cartes Piège
+            identiques est retirée du paquet de carte. Les cartes reliques
+            (artefacts) restantes dans le paquet sont retirées. <br />
+            <br /> Après 5 expéditions, chaque or dans le coffre vaut 1 point,
+            les étoiles (artefacts) valent 5 points chacune. Les 2 dernières
+            étoiles (artefacts) valent 5 points supplémentaires. Le joueur avec
+            le plus de points gagne. En cas d&apos;égalité le joueur avec le
+            plus d&apos;étoiles (artéfacts) gagne.
             <br />
           </div>
         </div>
@@ -126,14 +156,16 @@ const Profile = ({ location }) => {
 
   return (
     <>
-      <div className="div-home">
-        <div className="div-home--row">
-          {renderGame()}
-          {renderRules()}
-        </div>
-        <div className="div-home--row--credits-list">
-          {renderCredits()}
-          <div className="home--container"> </div>
+      <div className="home-screen">
+        <div className="div-home">
+          <div className="div-home--row">
+            {renderGame()}
+            {renderRules()}
+          </div>
+          <div className="div-home--row--credits-list">
+            {renderCredits()}
+            <div className="home--container"> </div>
+          </div>
         </div>
       </div>
     </>
