@@ -12,6 +12,7 @@ import piranhaImg from './../../assets/img/piranha.png'
 import thwompImg from './../../assets/img/thwomp.png'
 import deckImg from './../../assets/img/deck.png'
 import blockUsedImg from './../../assets/img/block-used.png'
+import crownImg from './../../assets/img/crown.png'
 
 import fullScreenImg from './../../assets/img/full-screen.png'
 
@@ -60,7 +61,8 @@ const Game = ({
   dupCard,
   hasRemainingUser,
   nbRound,
-  onFullscreen
+  onFullscreen,
+  winner
 }) => {
   const [showDraw, setShowDraw] = useState(false)
   const [showDrawnCard, setShowDrawnCard] = useState(null)
@@ -117,9 +119,14 @@ const Game = ({
             </div>
             <div className="div-users--gold">
               <img src={goldImg} alt="gold" />
-              {usr.id === socket.id ?
-                <div> {user.currentGold} <span> ({user.gold}) </span> </div> :
-                <div> {usr.currentGold} </div>
+              {
+                usr.id === socket.id ? (
+                  <div> {user.currentGold} 
+                    <span> ({user.gold}) </span> 
+                  </div>
+                ) : (
+                  <div> {usr.currentGold} </div>
+                )
               }
             </div>
           </div>
@@ -156,31 +163,77 @@ const Game = ({
     )
   }
 
+  const renderWinner = () => {
+    return (
+      <div className={"bg-winner"}>
+        <div className="winner-container">
+          <img
+            className="winner-crown-img"
+            src={crownImg}
+            alt="crown"
+            style={{animation: "rotating 0.9s ease infinite"}}
+          />
+
+          <img 
+            src={winner.img} 
+            alt="back"
+          />
+          <p> {winner.name} </p>
+        </div>
+      </div>
+    )
+  }
+
   /**
    * Render the list of drawn cards.
    */
   const renderDeck = () => {
+    const deck = gameState.deck.slice(0).reverse();
     return (
       <div className="div-container div-gameboard--board">
         {
           (showDraw && showDrawnCard) ? (
             <div id="gameboard--empty-img">
-              <img 
-                id="gameboard--reveal-img"
-                src={CARDS_IMG[showDrawnCard.name].img}
-                alt="deck" 
-                style={{
-                  visibility: "visible",
-                  transform: "translate3d(0, -0, 0)"
-                }}
-              />
+              {
+                showDrawnCard.name !== 'gold' ? 
+                  <img 
+                  id="gameboard--reveal-img"
+                  src={CARDS_IMG[showDrawnCard.name].img}
+                  alt="deck" 
+                  style={{
+                    visibility: "visible",
+                    transform: "translate3d(0, -0, 0)"
+                  }}
+                />
+                :
+                  <img 
+                  id="gameboard--reveal-img"
+                  src={CARDS_IMG[showDrawnCard.name].img}
+                  alt="deck" 
+                  style={{
+                    visibility: "visible",
+                    transform: "translate3d(0, -0, 0)",
+                    animationDuration: ".2s",
+                    animationDelay: "1s",
+                    animationName: "coin-bounce",
+                    animationIterationCount: "infinite",
+                    animation: "coin-bounce .2s infinite"
+                  }}
+                />
+              }
+
+              {
+                (showDrawnCard.name === 'gold' && showDrawnCard.score) && 
+                <p className="div-gameboard--card-score">
+                  {showDrawnCard.score}
+                </p>
+              }
+
               <img 
                 id="gameboard--block-img" 
                 src={blockUsedImg} 
                 alt="deck" 
-                style={{
-                  animation: "block-pop .25s linear"
-                }}
+                style={{ animation: "block-pop .25s linear" }}
               />
             </div>
           ) : (
@@ -190,7 +243,16 @@ const Game = ({
             </div>
           )
         }
-        {gameState.deck.slice(0).reverse().map((card) => (
+
+        {
+          deck.length > 0 && (
+            <div className="card--responsive" key={deck[0].id}>
+              {renderCards(deck[0])}
+            </div>
+          )
+        }
+
+        {deck.map((card) => (
           <div className="div-gameboard--card" key={card.id}>
             {renderCards(card)}
           </div>
@@ -261,13 +323,15 @@ const Game = ({
               onClick={(e) => onAction(e, CONTINUE)}
               className="div-container div-users--continue"
             >
-              <i className="fas fa-gavel"></i>
+              <i class="fas fa-door-open"></i>
+              <p> CONTINUE </p>
             </div>
             <div
               onClick={(e) => onAction(e, LEAVE)}
               className="div-container div-users--leave"
             >
-              <i className="fas fa-walking"></i>
+              <i class="fas fa-door-closed"></i>
+              <p> QUIT </p>
             </div>
           </>
         ) : null}
@@ -277,6 +341,7 @@ const Game = ({
 
   return (
     <div id="game-container-id" className="div-game-container">
+      {winner && renderWinner()}
       <img 
         className="game-full-screen" 
         src={fullScreenImg}

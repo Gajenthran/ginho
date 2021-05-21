@@ -40,6 +40,7 @@ const Ginho = ({ location }) => {
   const [lobbyChecked, setLobbyChecked] = useState(false)
   const [playState, setPlayState] = useState(LOBBYSTATE)
   const [options, setOptions] = useState({})
+  const [winner, setWinner] = useState(null)
 
   const onFullscreen = () => {
     const elem = document.getElementById('game-container-id')
@@ -225,10 +226,13 @@ const Ginho = ({ location }) => {
    */
   useEffect(() => {
     socket.on('game:end-game', ({ users }) => {
+      setUsers(users)
+      setWinner(users[0])
+
       setTimeout(() => {
-        setUsers(users)
         setPlayState(RANKSTATE)
-      }, 2000)
+        setWinner(null)
+      }, 3000)
     })
   }, [])
 
@@ -260,6 +264,7 @@ const Ginho = ({ location }) => {
           hasRemainingUser={hasRemainingUser}
           nbRound={options.nbRound}
           onFullscreen={onFullscreen}
+          winner={winner}
         />
       ) : playState === RANKSTATE ? (
         <Rank socket={socket} users={users} />

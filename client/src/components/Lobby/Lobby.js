@@ -24,6 +24,7 @@ const Lobby = ({ user, users }) => {
   const [nbRound, setNbRound] = useState(3)
   const [nbPlayer, setNbPlayer] = useState(2)
   const [x2Stars, setx2Stars] = useState(false)
+  const [bet, setBet] = useState(false)
   const [duplicate, setDuplicate] = useState(false)
   const [mult, setMult] = useState(0)
   const [roundOptions, setRoundOptions] = useState(false)
@@ -31,6 +32,7 @@ const Lobby = ({ user, users }) => {
   const [playerOptions, setPlayerOptions] = useState(false)
   const [dupOptions, setDupOptions] = useState(false)
   const [multOptions, setMultOptions] = useState(false)
+  const [betOptions, setBetOptions] = useState(false)
 
   useEffect(() => {
     socket.on('lobby:create-response', ({ user }) => {
@@ -157,6 +159,27 @@ const Lobby = ({ user, users }) => {
               width={130}
               height={5}
               onChange={() => setx2Stars(!x2Stars)}
+            />
+          </div>
+          <div
+            onMouseEnter={() => setBetOptions(true)}
+            onMouseLeave={() => setBetOptions(false)}
+          >
+            <h6> BET </h6>
+            <Fade in={betOptions}>
+              <div className="lobby-users-options-desc">
+                Parier sur l'apparition d'or dans la partie
+              </div>
+            </Fade>
+            <BootstrapSwitchButton
+              onlabel={' '}
+              offlabel={' '}
+              checked={x2Stars}
+              onstyle="outline-primary"
+              offstyle="outline-secondary"
+              width={130}
+              height={5}
+              onChange={() => setBet(!bet)}
             />
           </div>
           <div

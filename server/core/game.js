@@ -294,7 +294,6 @@ class Game {
       card.activate = false
     }
 
-    // TODO: better iteration
     let sharedGold = 0
     const remainingUsers = this._remainingUser()
 
