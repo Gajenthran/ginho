@@ -404,6 +404,28 @@ body {
     right: -20px;
     height: 10px;
   }
+  .div-gameboard--card>* {
+    display: none;
+  }
+  .card--responsive {
+    display: block;
+  }
+  .card--responsive img {
+    width: 50px !important;
+    height: 50px !important;
+  }
+  .div-gameboard--board>div {
+    margin-right: 0;
+    margin-top: 20px;
+  }
+  #gameboard--empty-img {
+    background-color: #1a1a21;
+    width: 50px;
+    height: 50px;
+  }
+  .div-gameboard--board {
+    height: 200px;
+  }
 }
 
 @media (max-width: 640px) {

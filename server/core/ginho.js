@@ -272,7 +272,8 @@ class Ginho {
         gameState = game.getGameState()
         io.to(room).emit('game:new-round', {
           users: game.getUsers(),
-          gameState
+          gameState,
+          end: game.end()
         })
       }
     }

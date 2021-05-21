@@ -198,17 +198,20 @@ const Ginho = ({ location }) => {
    * Start a new round.
    */
   useEffect(() => {
-    socket.on('game:new-round', ({ users, gameState }) => {
-      setTimeout(() => {
-        setUser(users.find((u) => u.id === socket.id))
-        setUsers(users)
-        setDuplicatedCard(false)
-        setHasRemainingUser(true)
-        setGameState((prevGameState) => ({
-          ...prevGameState,
-          ...gameState,
-        }))
-      }, 2000)
+    socket.on('game:new-round', ({ users, gameState, end }) => {
+      if(!end) {
+        setTimeout(() => {
+          setUser(users.find((u) => u.id === socket.id))
+          setUsers(users)
+          setDuplicatedCard(false)
+          setHasRemainingUser(true)
+          setGameState((prevGameState) => ({
+            ...prevGameState,
+            ...gameState,
+          }))
+        }, 2000)
+      }
+
     })
   }, [])
 
@@ -226,13 +229,15 @@ const Ginho = ({ location }) => {
    */
   useEffect(() => {
     socket.on('game:end-game', ({ users }) => {
-      setUsers(users)
-      setWinner(users[0])
-
       setTimeout(() => {
-        setPlayState(RANKSTATE)
-        setWinner(null)
-      }, 3000)
+        setUsers(users)
+        setWinner(users[0])   
+
+        setTimeout(() => {
+          setPlayState(RANKSTATE)
+          setWinner(null)
+        }, 3000)
+      }, 3000);
     })
   }, [])
 
