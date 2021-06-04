@@ -12,6 +12,12 @@ const LEAVE = 0
  */
 const CONTINUE = 1
 
+const CARDS_TYPE = {
+  "bad": 0,
+  "good": 1,
+  "bonus": 2
+};
+
 /**
  * Star bonus defined as 5 gold.
  */
@@ -34,6 +40,15 @@ const CARDS_JSON = JSON.parse(
  */
 const CARDS = CARDS_JSON.cards
 
+const shuffleDeck = deck => {
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = deck[i];
+    deck[i] = deck[j];
+    deck[j] = temp;
+  }
+}
+
 /**
  * Class representing the game.
  */
@@ -49,10 +64,12 @@ class Game {
     this.gold = 0
     this.stars = []
     this.round = 1
-    this.cards = [...CARDS]
-    this.rawCards = [...CARDS]
+    const _initialisedDeck = this.initDeck()
+    this.cards = [..._initialisedDeck]
+    this.rawCards = [..._initialisedDeck]
     this.removedCard = null
     this.deck = []
+    this.highCards = []
     this.remainingUsers = this.users.length
     this.playedUser = 0
     this.mult = options.mult || DEF_MULT
@@ -66,6 +83,48 @@ class Game {
       this.users[i].gold = 0
       this.users[i].currentGold = 0
     }
+  }
+
+  initDeck() {
+    const nbGoodToUsed = 15;
+    const nbBadToUsed = 5;
+    const nbGoodCards = 32;
+    const nbBadCards = 16;
+    const nbDupCard = 3;
+    const nbBonusToUsed = 5;
+
+    const goodCards = Array.from(
+      Array(nbGoodCards), (_, index) => index
+    );
+
+    const badCards = Array.from(
+      Array(nbBadCards), (_, index) => index + nbGoodCards
+    );
+
+    shuffleDeck(goodCards);
+    shuffleDeck(badCards);
+
+    const goodCardsArray = []
+    const badCardsArray = []
+    const bonusCardsArray = []
+
+    for(let i = 0; i < nbGoodToUsed; i++)
+      goodCardsArray.push(CARDS[goodCards[i]]);
+
+    for(let i = 0; i < nbBadToUsed; i++) {
+      const card = CARDS[badCards[i]];
+      for(let i = 0; i < nbDupCard; i++) {
+        const dupCard = Object.assign(card, { id: card.id + 100 * i })
+        badCardsArray.push(dupCard);
+      }
+    }
+
+    console.log(badCardsArray)
+
+    for(let i = 0; i < nbBonusToUsed; i++)
+      bonusCardsArray.push(CARDS[nbGoodCards + nbBadCards + i]);
+
+    return [...goodCardsArray, ...badCardsArray, ...bonusCardsArray]
   }
 
   /**
@@ -127,6 +186,7 @@ class Game {
     this.round = 1
     this.cards = [...CARDS]
     this.deck = []
+    this.highCards = []
 
     this.remainingUsers = this.users.length
     this.playedUser = 0
@@ -137,6 +197,7 @@ class Game {
       this.users[i].action = CONTINUE
       this.users[i].gold = 0
       this.users[i].currentGold = 0
+      this.users[i].lastGold = -1
     }
   }
 
@@ -165,6 +226,7 @@ class Game {
       nbCards: this.cards.length,
       remainingUsers: this.remainingUsers,
       stars: this.stars,
+      highCards: this.highCards
     }
   }
 
@@ -181,6 +243,8 @@ class Game {
     this.gold = 0
     this.cards = [...this.rawCards]
     this.deck = []
+    this.highCards = []
+    this.stars = []
     this.remainingUsers = this.users.length
     this.playedUser = 0
 
@@ -189,6 +253,7 @@ class Game {
       this.users[i].checked = false
       this.users[i].action = CONTINUE
       this.users[i].currentGold = 0
+      this.users[i].lastGold = -1
     }
     this.round++
   }
@@ -221,9 +286,12 @@ class Game {
 
     const dup = card
       ? this.options.duplicate
-        ? card.type === 0
-        : card.type === 0 && this._hasDuplicates(card)
+        ? card.type === CARDS_TYPE["bad"]
+        : card.type === CARDS_TYPE["bad"] && this._hasDuplicates(card)
       : false
+
+    if(card.type === CARDS_TYPE["bad"] && !dup)
+      this.highCards.push(card)
 
     this.deck.push(card)
     this.cards.splice(index, 1)
@@ -257,6 +325,7 @@ class Game {
 
       leavingUsers.map((user) => {
         user.left = true
+        user.lastGold = user.currentGold
         user.currentGold += sharedGold + sharedStar
         user.gold += user.currentGold
       })
@@ -287,9 +356,11 @@ class Game {
     }
 
     this.gold +=
-      card.name === 'gold' ? card.score + this.mult * this.deck.length : 0
+      card.type === CARDS_TYPE["good"] ? 
+        card.score + this.mult * this.deck.length : 0
 
-    if (card.name === 'star') {
+
+    if (card.type === CARDS_TYPE["bonus"]) {
       this.stars.push(card)
       card.activate = false
     }
@@ -301,12 +372,14 @@ class Game {
     this.gold -= sharedGold * remainingUsers.length
 
     remainingUsers.map((user) => {
+      user.lastGold = user.currentGold
       user.currentGold += sharedGold
       user.checked = false
     })
 
     this.playedUser = 0
 
+    console.log(this.users)
     return false
   }
 
@@ -358,6 +431,7 @@ class Game {
     this.users[index].action = CONTINUE
     this.users[index].gold = 0
     this.users[index].currentGold = 0
+    this.users[index].lastGold = -1
 
     const { played, remaining } = this._countPlayedUsers()
     this.remainingUsers = remaining

@@ -2,7 +2,7 @@
   display: flex;
   position: relative;
   width: 100%;
-  height: 100%;
+  height: 90%;
 }
 
 .div-lobby {
@@ -114,6 +114,7 @@
   -webkit-transition-property: transform;
   transition-property: transform;
   cursor: pointer;
+  transition: 250ms;
 }
 
 .lobby-start-game button:active {
@@ -122,8 +123,8 @@
 }
 
 .lobby-start-game button:hover {
-  border: none;
-  background: transparent linear-gradient(0deg, #146be2 0%, #146be2 100%) 0% 0% no-repeat padding-box;
+  border: 2px solid #146be2;
+  background: #146be2;
 }
 
 .lobby-users-options h3, .lobby-users-list h3 {

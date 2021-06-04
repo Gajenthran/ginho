@@ -133,6 +133,7 @@ const Ginho = ({ location }) => {
    */
   useEffect(() => {
     socket.on('game:new-game', ({ users, gameState, options }) => {
+      setWinner(null)
       setPlayState(GAMESTATE)
       setUser(users.find((user) => user.id === socket.id))
       setUsers(users)
@@ -163,23 +164,17 @@ const Ginho = ({ location }) => {
     socket.on(
       'game:update-game',
       ({ users, gameState, noRemainingUser, dupCard, isAllLeaving }) => {
-        window.scrollTo(0, 0)
-
         if(isAllLeaving) {
           if(isAllLeaving) gameState.deck = gameState.deck.slice(0, -1)
-
           setUser(users.find((u) => u.id === socket.id))
           setUsers(users)
           setHasRemainingUser(!noRemainingUser)
           setGameState((prevGameState) => ({
             ...prevGameState,
             ...gameState,
-          }))
-          setDuplicatedCard(dupCard)
+          }));
         } else {
           setTimeout(() => {
-            if(isAllLeaving) gameState.deck = gameState.deck.slice(0, -1)
-
             setUser(users.find((u) => u.id === socket.id))
             setUsers(users)
             setHasRemainingUser(!noRemainingUser)
@@ -190,7 +185,7 @@ const Ginho = ({ location }) => {
             setDuplicatedCard(dupCard)
           }, 1000);
         }
-    }
+      }
     )
   }, [])
 
@@ -231,12 +226,7 @@ const Ginho = ({ location }) => {
     socket.on('game:end-game', ({ users }) => {
       setTimeout(() => {
         setUsers(users)
-        setWinner(users[0])   
-
-        setTimeout(() => {
-          setPlayState(RANKSTATE)
-          setWinner(null)
-        }, 3000)
+        setWinner(users[0])
       }, 3000);
     })
   }, [])
@@ -253,6 +243,7 @@ const Ginho = ({ location }) => {
         !(
           document.mozFullScreenElement || document.fullscreenElement || 
           document.webkitFullscreenElement || document.msFullscreenElement
+          || playState === GAMESTATE
         ) && <Navbar/>
       }
       {playState === PROFILE_STATE ? (

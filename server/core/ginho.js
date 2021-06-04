@@ -259,6 +259,12 @@ class Ginho {
       let gameState = game.getGameState()
       gameState.newRound = newRound
 
+      if(card && !isAllLeaving) {
+        setTimeout(() => {
+          io.to(room).emit('game:flip-card', {lastCard: card})
+        }, 200);
+      }
+
       io.to(room).emit('game:update-game', {
         users: game.getUsers(),
         gameState,
@@ -267,14 +273,20 @@ class Ginho {
         isAllLeaving
       })
 
+      console.log(game.getOptions().nbRound)
+
       if (newRound) {
         game.newRound()
         gameState = game.getGameState()
-        io.to(room).emit('game:new-round', {
-          users: game.getUsers(),
-          gameState,
-          end: game.end()
-        })
+
+        setTimeout(() => {
+          io.to(room).emit('game:new-round', {
+            users: game.getUsers(),
+            gameState,
+            end: game.end(),
+            totalRound: game.getOptions().nbRound
+          })
+        }, 1000);
       }
     }
   }

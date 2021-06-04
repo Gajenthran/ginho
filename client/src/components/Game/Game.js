@@ -1,20 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import { ProgressBar, Spinner } from 'react-bootstrap'
+import CountUp from 'react-countup';
 
 import './Game.css'
 
-import goldImg from './../../assets/img/gold.png'
-import starImg from './../../assets/img/star.png'
-import blooperImg from './../../assets/img/blooper.png'
-import bowserImg from './../../assets/img/bowser.png'
-import koopaImg from './../../assets/img/koopa.png'
-import piranhaImg from './../../assets/img/piranha.png'
-import thwompImg from './../../assets/img/thwomp.png'
-import deckImg from './../../assets/img/deck.png'
-import blockUsedImg from './../../assets/img/block-used.png'
-import crownImg from './../../assets/img/crown.png'
-
-import fullScreenImg from './../../assets/img/full-screen.png'
+import { IMGS } from './../constants/images';
+import {
+  USERS_POS,
+  ANIM_FLIP
+} from './../constants/css'
 
 /**
  * Leave action set to 0.
@@ -26,18 +19,7 @@ const LEAVE = 0
  */
 const CONTINUE = 1
 
-/**
- * All card images of the game with their label.
- */
-const CARDS_IMG = {
-  gold: { img: goldImg, name: 'PIÈCES' },
-  star: { img: starImg, name: 'ÉTOILES' },
-  fire: { img: blooperImg, name: 'SPINY' },
-  water: { img: koopaImg, name: 'KOOPA' },
-  wind: { img: piranhaImg, name: 'PIRANHA' },
-  earth: { img: thwompImg, name: 'GOOMBA' },
-  space: { img: bowserImg, name: 'BOWSER' },
-}
+const NB_HIGH_CARDS = 5
 
 /**
  * Game component to play Ginho. A game is divided into
@@ -59,13 +41,19 @@ const Game = ({
   users,
   gameState,
   dupCard,
-  hasRemainingUser,
   nbRound,
   onFullscreen,
   winner
 }) => {
+  const [deck] = useState(new Array(10).fill(0));
   const [showDraw, setShowDraw] = useState(false)
   const [showDrawnCard, setShowDrawnCard] = useState(null)
+  const [highCards, setHighCards] = useState([]);
+  const [flip, setFlip] = useState(false)
+  const [token, setToken] = useState(0)
+  const [newRound, setNewRound] = useState(false)
+  const [showReturnLobbyButton, setShowReturnLobbyButton] = useState(false)
+  const [roundWinner, setRoundWinner] = useState(false)
 
   /**
    * Handle user action (either continue the
@@ -81,21 +69,119 @@ const Game = ({
   }
 
   useEffect(() => {
+    socket.on('game:flip-card', ({ lastCard }) => {
+      setShowDrawnCard(lastCard)
+      setShowDraw(true)
+      setTimeout(() => {
+        setFlip(true);        
+      }, 200);
+    })
+  }, [socket]);
+
+
+  useEffect(() => {
     socket.on(
       'game:update-game',
       ({ gameState, isAllLeaving }) => {
         if(!isAllLeaving) {
-          setShowDrawnCard(gameState.deck[gameState.deck.length - 1])
-          setShowDraw(true)
-
-          setTimeout(() => {
+          let drawnCardTimer = setTimeout(() => {
+            console.log(gameState.highCards)
             setShowDraw(false)
             setShowDrawnCard(null)
-          }, 1000);
+            setFlip(false)
+            setToken(gameState.gold)
+            setHighCards(gameState.highCards)
+          }, 2000);
+
+          return () => {
+            clearTimeout(drawnCardTimer)
+          }
         }
       }
     )
+  }, [socket, highCards])
+
+
+  useEffect(() => {
+    socket.on('game:new-round', ({ gameState, totalRound }) => {
+      if(gameState.round > totalRound)
+        return
+      
+      setHighCards(gameState.highCards)
+      setRoundWinner(true)
+
+      let roundWinnerTimer = setTimeout(() => {
+        setRoundWinner(false)
+        setNewRound(true)
+      }, 1500);
+
+      let newRoundTimer = setTimeout(() => {
+        setHighCards([])
+        setFlip(false);
+        setToken(0)
+        setNewRound(false);
+      }, 3000)
+
+      return () => { 
+        clearTimeout(newRoundTimer) 
+        clearTimeout(roundWinnerTimer) 
+      }
+    })
   }, [socket])
+
+
+  const renderRoundWinner = () => {
+    const sortedUsers = users
+      .sort((u1, u2) => (u1.currentGold < u2.currentGold ? 1 : -1))
+      .slice(0, 3)
+      .filter(usr => usr.action === LEAVE)
+    console.log(sortedUsers)
+    console.log(sortedUsers.length)
+    return (
+      <div 
+        className={"bg-winner"}
+        style={{ animation: "bg-color 1.5s linear" }}
+      >
+        <div 
+          className="winner-container"
+          style={{ animation: "popup-scale 1.2s linear" }}
+        >
+          <div className="winner-container-avatar">
+            {sortedUsers.length === 0 ?
+              <div className="winner-container-img">
+                <p style={{fontSize: "200px"}}> 
+                  🤷‍♂️
+                </p>
+              </div>
+              :
+              sortedUsers.map(usr => 
+                <div className="winner-container-img">
+                  <img src={usr.img} alt="back" />
+                  <p> {usr.name} </p>
+                  <div className="winner-tokens">
+                    <img 
+                      src={IMGS["token"]} 
+                      alt="token" 
+                    />
+                    <CountUp
+                      start={0}
+                      end={usr.currentGold}
+                      duration={3}
+                      delay={0}
+                    >
+                      {({ countUpRef }) => (
+                        <p ref={countUpRef} />
+                      )}
+                    </CountUp>
+                  </div>
+                </div>
+              )
+            }
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   /**
    * Render all users in the game and show the status
@@ -105,71 +191,110 @@ const Game = ({
    */
   const renderUsers = () => {
     return (
-      <div className="div-container div-users--infos">
-        {users.map((usr) => (
-          <div className="div-users--infos-list" key={usr.id}>
-            <div className="div-users--name">
-              <img
-                className="div-users--name--avatar"
-                src={usr.img}
-                alt="check-button"
-                style={usr.left || usr.checked ? { filter: 'grayscale(1)' } : null}
+      <div className="div-users-container">
+        {
+          users.map((usr, index) => (
+            <div 
+              key={index}
+              className="div-users-profile"
+              style={
+                USERS_POS[users.length - 1][index]}
+            >
+              <img 
+                className="div-users-profile--img" 
+                src={usr.img} 
+                alt="pp"
+                style={{opacity: usr.checked ? 0.25 : 1}}
               />
-              {usr.name}
-            </div>
-            <div className="div-users--gold">
-              <img src={goldImg} alt="gold" />
               {
-                usr.id === socket.id ? (
-                  <div> {user.currentGold} 
-                    <span> ({user.gold}) </span> 
-                  </div>
-                ) : (
-                  <div> {usr.currentGold} </div>
-                )
+                usr.left && 
+                  <img 
+                    className="div-users-profile--cross" 
+                    src={IMGS["cross"]} 
+                    alt="cross"
+                    style={{opacity: usr.checked ? 0.25 : 1}}
+                  />
               }
+              <div style={{opacity: usr.checked ? 0.25 : 1}}>
+                <p className="div-users-name"> {usr.name.substring(0, 5)} </p>
+                <div className="div-users-tokens">
+                  <img 
+                    src={IMGS["token"]} 
+                    alt="token" 
+                    style={
+                      usr.currentGold !== usr.lastGold && 
+                      usr.currentGold - usr.lastGold > 4 ? 
+                      {animation: "grow 1s linear"} : null
+                    }
+                  />
+                  {usr.currentGold && usr.lastGold ? 
+                    <CountUp
+                      start={usr.lastGold}
+                      end={usr.currentGold}
+                      duration={3}
+                      delay={0}
+                    >
+                      {({ countUpRef }) => (
+                        <p 
+                          ref={countUpRef} 
+                          style={
+                            usr.currentGold !== usr.lastGold && 
+                            usr.currentGold - usr.lastGold > 4 ? 
+                            {animation: "grow 1s linear"} : null
+                          }
+                        />
+                      )}
+                    </CountUp> 
+                    : <p> {usr.currentGold} </p>
+                  }
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
-        {(dupCard || !hasRemainingUser) && (
-          <Spinner
-            className="users-spinner--loading"
-            animation="border"
-            role="status"
-          />
-        )}
+          ))
+        }
+      </div>
+    );
+  }
+
+  const renderNextRound = () => {
+    return (
+      <div 
+        className={"bg-turn"}
+        style={{ animation: "bg-color 1.5s linear" }}
+      >
+        <div 
+          className="next-turn-container"
+          style={{ animation: "popup-scale 1.2s linear" }}
+        >
+          <p> TOUR {gameState.round}/{nbRound} </p>
+        </div>
       </div>
     )
   }
 
-  const renderCards = (card) => {
-    const activatedCard = card.name === 'star' && card.activate
-
-    return (
-      <div>
-        <img
-          src={CARDS_IMG[card.name].img}
-          alt={card.name}
-          style={activatedCard ? { filter: 'grayscale(1)' } : null}
-        />
-        {
-          card.name === 'gold' && (
-            <p className="div-gameboard--card-score">
-              {card.score}
-            </p>
-          )
-        }
-      </div>
-    )
+  const onReturnLobby = () => {
+    socket.emit('game:restart')
+    setShowDraw(false);
+    setShowDrawnCard(null);
+    setHighCards([]);
+    setFlip(false);
+    setToken(0);
+    setNewRound(false);
   }
 
   const renderWinner = () => {
     return (
-      <div className={"bg-winner"}>
-        <div className="winner-container">
+      <div 
+        className={"bg-winner"}
+        style={{ animation: "bg-color 1.5s linear" }}
+      >
+        <div 
+          className="winner-container"
+          style={{ animation: "popup-scale 1.2s linear" }}
+        >
           <img
             className="winner-crown-img"
-            src={crownImg}
+            src={IMGS["crown"]}
             alt="crown"
             style={{animation: "rotating 0.9s ease infinite"}}
           />
@@ -179,136 +304,259 @@ const Game = ({
             alt="back"
           />
           <p> {winner.name} </p>
+          <button 
+            onClick={() => onReturnLobby()}
+            style={{visibility: showReturnLobbyButton ? "visible": "hidden" }}
+          > 
+            RETOURNER AU LOBBY
+          </button>
         </div>
       </div>
     )
+  }
+
+  const renderFlipCard = () => {
+    let type = showDrawnCard.type;
+    let dupIndex = -1;
+
+    if(showDrawnCard.type === 0) {
+      dupIndex = dupCard ? -1 : highCards.length
+    }
+
+    return (
+      <div className="flip-card-container"
+      style={
+        type === 0 ? 
+          dupIndex !== -1 ? 
+            { animation: `${ANIM_FLIP[highCards.length]} 1.8s linear` } :
+            null
+          :
+          flip ? 
+            { animation : 'grow-down 1.8s linear' } :
+            null
+          
+      }
+      >
+        <div 
+          className="flip-card" 
+          style={flip ? { transform: 'rotateY(180deg)'}: null}
+        >
+          <div className="flip-card-front">
+            <img 
+              src={IMGS["back"]}
+              alt="back-img" 
+            />
+          </div>
+          <div className="flip-card-back">
+            <img 
+              src={IMGS[showDrawnCard.name]}
+              alt="drawn-img" 
+            />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   /**
    * Render the list of drawn cards.
    */
   const renderDeck = () => {
-    const deck = gameState.deck.slice(0).reverse();
-    return (
-      <div className="div-container div-gameboard--board">
-        {
-          (showDraw && showDrawnCard) ? (
-            <div id="gameboard--empty-img">
+    if(gameState && gameState.deck) {
+      return (
+        <div className="div-gameboard--board">
+          <div className="decklist-container">
+            <div className="div-decklist">
               {
-                showDrawnCard.name !== 'gold' ? 
+                deck.map((_, index) => (
                   <img 
-                  id="gameboard--reveal-img"
-                  src={CARDS_IMG[showDrawnCard.name].img}
-                  alt="deck" 
-                  style={{
-                    visibility: "visible",
-                    transform: "translate3d(0, -0, 0)"
-                  }}
-                />
-                :
-                  <img 
-                  id="gameboard--reveal-img"
-                  src={CARDS_IMG[showDrawnCard.name].img}
-                  alt="deck" 
-                  style={{
-                    visibility: "visible",
-                    transform: "translate3d(0, -0, 0)",
-                    animationDuration: ".2s",
-                    animationDelay: "1s",
-                    animationName: "coin-bounce",
-                    animationIterationCount: "infinite",
-                    animation: "coin-bounce .2s infinite"
-                  }}
-                />
+                    key={index}
+                    src={IMGS["back"]}
+                    alt="back-img"
+                    style={{ transform: `translateY(${-4 * (index + 1)}px`}}
+                  />
+                ))
               }
-
-              {
-                (showDrawnCard.name === 'gold' && showDrawnCard.score) && 
-                <p className="div-gameboard--card-score">
-                  {showDrawnCard.score}
-                </p>
-              }
-
-              <img 
-                id="gameboard--block-img" 
-                src={blockUsedImg} 
-                alt="deck" 
-                style={{ animation: "block-pop .25s linear" }}
-              />
+              <p> {gameState.nbCards} </p>
+              <div className="decklist-jokers">
+                {
+                  (gameState && gameState.stars) &&
+                    gameState.stars.map((_, index) => (
+                      <img
+                        key={index}
+                        src={IMGS["jokerImg"]}
+                        alt="joker-img"
+                        style={{left: `${50 * index}px`}}
+                      />
+                    ))
+                }
+              </div>
             </div>
-          ) : (
-            <div id="gameboard--empty-img">
-              <img id="gameboard--reveal-img" src={deckImg} alt="deck" />
-              <img id="gameboard--block-img" src={deckImg} alt="deck" />
-            </div>
-          )
-        }
-
-        {
-          deck.length > 0 && (
-            <div className="card--responsive" key={deck[0].id}>
-              {renderCards(deck[0])}
-            </div>
-          )
-        }
-
-        {deck.map((card) => (
-          <div className="div-gameboard--card" key={card.id}>
-            {renderCards(card)}
           </div>
-        ))}
-      </div>
-    )
+
+          {(showDraw && showDrawnCard) && renderFlipCard()}
+        </div>
+      );
+    }
   }
 
-  /**
-   * Render the list of drawn cards but highlight duplicate
-   * card.
-   */
-  const renderDeckHighlight = () => {
-    const lCard = gameState.deck[gameState.deck.length - 1]
+  const renderToken = () => {
     return (
-      <div className="div-container div-gameboard--board">
-        {gameState.deck.slice(0).reverse().map((card) => (
-          <div
-            key={card.id}
-            className={
-              lCard.type === 0 &&
-                lCard.name === card.name ?
-                'div-gameboard--card' :
-                'div-gameboard--card card-transparent'
-            }
+      <div className="div-token-chest">
+        <img src={IMGS["token"]} alt="tokens" />
+        <CountUp
+          start={token}
+          end={gameState.gold}
+          duration={2}
+          delay={0}
+        >
+          {({ countUpRef }) => (
+            <p ref={countUpRef} />
+          )}
+        </CountUp>
+      </div>
+    );
+  }
+
+
+  const renderHighCards = () => {
+    const hCards = new Array(highCards.length).fill(1)
+
+    const cardsContainer = hCards.map((_, index) => {
+      return (
+        <div 
+          key={index}
+          className="highcard-container"
+          style={{left: `${11 + 17 * index}%`}}
+        >
+          {
+            highCards[index] !== null ? 
+              <img src={IMGS[highCards[index].name]} alt="high-card" /> :
+              null
+          }
+        </div>          
+      )
+    })
+
+    const remainingCards = NB_HIGH_CARDS - highCards.length
+    const eCards = new Array(remainingCards).fill(0)
+
+    const emptyContainer = eCards.map((_, index) => {
+      return (
+        <div 
+          key={index}
+          className="highcard-container"
+          style={{left: `${11 + 17 * (index + highCards.length)}%`}}
+        >
+        </div>
+      )
+    });
+
+    return (
+      <>
+        {cardsContainer}
+        {emptyContainer}
+      </>
+    )
+    /* return (
+      highCards.map((card, index) => {
+        if(card === null) {
+          return (
+            <div 
+              key={index}
+              className="highcard-container"
+              style={{left: `${11 + 17 * index}%`}}
+            >
+            </div>
+          )
+        }
+
+        return (
+          <div 
+            key={index}
+            className="highcard-container"
+            style={{left: `${11 + 17 * index}%`}}
           >
-            {renderCards(card)}
+            <img src={IMGS[card.name]} alt="high-card" />
           </div>
-        ))}
-      </div>
-    )
+        )
+      }) 
+    );*/
   }
 
-  /**
-   * Render game informations: treasure, remaining
-   * rounds and remaining cards.
-   */
-  const renderInfos = () => {
+  const renderHighCardsHighlight = () => {
+    const lastCard = showDrawnCard ? showDrawnCard.name : null;
+    const hCards = new Array(highCards.length).fill(1)
+
+    const cardsContainer = hCards.map((_, index) => {
+      return (
+        <div 
+          key={index}
+          className="highcard-container"
+          style={{left: `${11 + 17 * index}%`}}
+        >
+          {
+            highCards[index] !== null ? 
+              <img 
+                src={IMGS[highCards[index].name]} 
+                alt="high-card" 
+                style={{opacity: lastCard === highCards[index].name ? 1 : 0.25}}
+              /> :
+              null
+          }
+        </div>          
+      )
+    })
+
+    const remainingCards = NB_HIGH_CARDS - highCards.length
+    const eCards = new Array(remainingCards).fill(0)
+
+    const emptyContainer = eCards.map((ec, index) => {
+      return (
+        <div 
+          key={index}
+          className="highcard-container"
+          style={{left: `${11 + 17 * (index + highCards.length)}%`}}
+        >
+        </div>
+      )
+    });
+
     return (
-      <div className="div-container div-gameboard--infos">
-        <div className="div-gameboard-icons">
-          <img className="game--icons" src={goldImg} alt="gold" />
-          <div> {gameState.gold} </div>
-        </div>
-        <div className="div-gameboard-icons div-gameboard-deck">
-          <img className="game--icons" src={deckImg} alt="deck" />
-          <div>
-            {gameState.deck.length}
-            <span> ({gameState.nbCards}) </span>
-          </div>
-        </div>
-        <div className="div-gameboard--progress">
-          <ProgressBar now={(gameState.round / nbRound) * 100} />
-        </div>
-      </div>
+      <>
+        {cardsContainer}
+        {emptyContainer}
+      </>
     )
+
+    /* return (
+      highCards.map((card, index) => {
+        if(card === null) {
+          return (
+            <div 
+              key={index}
+              className="highcard-container"
+              style={{left: `${11 + 17 * index}%`}}
+            >
+            </div>
+          )
+        }
+
+        return (
+          <div 
+            key={index}
+            className="highcard-container"
+            style={{left: `${11 + 17 * index}%`}}
+          >
+            <img 
+              src={IMGS[card.name]} 
+              alt="high-card"
+              style={{opacity: lastCard.name === card.name ? 1 : 0.25}}
+            />
+          </div>
+        )
+      })
+    ) */
   }
 
   /**
@@ -323,15 +571,13 @@ const Game = ({
               onClick={(e) => onAction(e, CONTINUE)}
               className="div-container div-users--continue"
             >
-              <i class="fas fa-door-open"></i>
-              <p> CONTINUE </p>
+              <img src={IMGS["draw"]} alt="draw" />
             </div>
             <div
               onClick={(e) => onAction(e, LEAVE)}
               className="div-container div-users--leave"
             >
-              <i class="fas fa-door-closed"></i>
-              <p> QUIT </p>
+              <img src={IMGS["quit"]} alt="draw" />
             </div>
           </>
         ) : null}
@@ -339,28 +585,41 @@ const Game = ({
     )
   }
 
+  useEffect(() => {
+    socket.on('game:end-game', () => {
+      setTimeout(() => {
+        setShowReturnLobbyButton(true)
+      }, 5500);
+    })
+  }, [socket])
+
+
+  const renderTurn = () => {
+    return <p className="turn-container"> Tour {gameState.round}/{nbRound} </p>
+  }
+
   return (
     <div id="game-container-id" className="div-game-container">
       {winner && renderWinner()}
+      {roundWinner && renderRoundWinner()}
       <img 
         className="game-full-screen" 
-        src={fullScreenImg}
+        src={IMGS["fullScreen"]}
         onClick={onFullscreen}
         alt="full-screen"
       />
       <div className="div-game">
-        <div className="div-game--layout">
-          <div className="div-gameboard--layout">
-            {renderInfos()}
-            <div className="div-container div-gameboard--board">
-              {dupCard ? renderDeckHighlight() : renderDeck()}
-            </div>
-          </div>
-          <div id="div-users--container">
-            {renderUsers()}
-            {renderUserAction()}
-          </div>
-        </div>
+          {!showDraw && renderUserAction()}
+          {renderDeck()}
+          {
+            dupCard ? 
+              renderHighCardsHighlight() : 
+              renderHighCards()
+          }
+          {renderToken()}
+          {renderUsers()}
+          {renderTurn()}
+          {newRound && renderNextRound()}
       </div>
     </div>
   )

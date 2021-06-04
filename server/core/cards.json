@@ -1,207 +1,321 @@
 {
   "cards": [
     {
-      "id": 1,
-      "name": "gold",
-      "type": 1,
-      "score": 1
-    },
-    {
-      "id": 2,
-      "name": "gold",
+      "id": 5,
+      "name": "heart_2",
       "type": 1,
       "score": 2
     },
     {
-      "id": 3,
-      "name": "gold",
+      "id": 6,
+      "name": "diamond_2",
+      "type": 1,
+      "score": 2
+    },
+    {
+      "id": 7,
+      "name": "spade_2",
+      "type": 1,
+      "score": 2
+    },
+    {
+      "id": 8,
+      "name": "club_2",
+      "type": 1,
+      "score": 2
+    },
+    {
+      "id": 9,
+      "name": "heart_3",
       "type": 1,
       "score": 3
     },
     {
-      "id": 4,
-      "name": "gold",
+      "id": 10,
+      "name": "diamond_3",
+      "type": 1,
+      "score": 3
+    },
+    {
+      "id": 11,
+      "name": "spade_3",
+      "type": 1,
+      "score": 3
+    },
+    {
+      "id": 12,
+      "name": "club_3",
+      "type": 1,
+      "score": 3
+    },
+    {
+      "id": 13,
+      "name": "heart_4",
       "type": 1,
       "score": 4
     },
     {
-      "id": 5,
-      "name": "gold",
+      "id": 14,
+      "name": "diamond_4",
+      "type": 1,
+      "score": 4
+    },
+    {
+      "id": 15,
+      "name": "spade_4",
+      "type": 1,
+      "score": 4
+    },
+    {
+      "id": 16,
+      "name": "club_4",
+      "type": 1,
+      "score": 4
+    },
+    {
+      "id": 17,
+      "name": "heart_5",
       "type": 1,
       "score": 5
     },
     {
-      "id": 6,
-      "name": "gold",
+      "id": 18,
+      "name": "diamond_5",
       "type": 1,
       "score": 5
     },
     {
-      "id": 7,
-      "name": "gold",
+      "id": 19,
+      "name": "spade_5",
+      "type": 1,
+      "score": 5
+    },
+    {
+      "id": 20,
+      "name": "club_5",
+      "type": 1,
+      "score": 5
+    },
+    {
+      "id": 21,
+      "name": "heart_6",
+      "type": 1,
+      "score": 6
+    },
+    {
+      "id": 22,
+      "name": "diamond_6",
+      "type": 1,
+      "score": 6
+    },
+    {
+      "id": 23,
+      "name": "spade_6",
+      "type": 1,
+      "score": 6
+    },
+    {
+      "id": 24,
+      "name": "club_6",
+      "type": 1,
+      "score": 6
+    },
+    {
+      "id": 25,
+      "name": "heart_7",
       "type": 1,
       "score": 7
     },
     {
-      "id": 8,
-      "name": "gold",
+      "id": 26,
+      "name": "diamond_7",
       "type": 1,
       "score": 7
     },
     {
-      "id": 9,
-      "name": "gold",
+      "id": 27,
+      "name": "spade_7",
+      "type": 1,
+      "score": 7
+    },
+    {
+      "id": 28,
+      "name": "club_7",
+      "type": 1,
+      "score": 7
+    },
+    {
+      "id": 29,
+      "name": "heart_8",
+      "type": 1,
+      "score": 8
+    },
+    {
+      "id": 30,
+      "name": "diamond_8",
+      "type": 1,
+      "score": 8
+    },
+    {
+      "id": 31,
+      "name": "spade_8",
+      "type": 1,
+      "score": 8
+    },
+    {
+      "id": 32,
+      "name": "club_8",
+      "type": 1,
+      "score": 8
+    },
+    {
+      "id": 33,
+      "name": "heart_9",
       "type": 1,
       "score": 9
     },
     {
-      "id": 10,
-      "name": "gold",
-      "type": 1,
-      "score": 11
-    },
-    {
-      "id": 11,
-      "name": "gold",
-      "type": 1,
-      "score": 11
-    },
-    {
-      "id": 12,
-      "name": "gold",
-      "type": 1,
-      "score": 13
-    },
-    {
-      "id": 13,
-      "name": "gold",
-      "type": 1,
-      "score": 14
-    },
-    {
-      "id": 14,
-      "name": "gold",
-      "type": 1,
-      "score": 15
-    },
-    {
-      "id": 16,
-      "name": "fire",
-      "type": 0,
-      "score": -1
-    },
-    {
-      "id": 17,
-      "name": "fire",
-      "type": 0,
-      "score": -1
-    },
-    {
-      "id": 18,
-      "name": "fire",
-      "type": 0,
-      "score": -1
-    },
-    {
-      "id": 19,
-      "name": "water",
-      "type": 0,
-      "score": -1
-    },
-    {
-      "id": 20,
-      "name": "water",
-      "type": 0,
-      "score": -1
-    },
-    {
-      "id": 21,
-      "name": "water",
-      "type": 0,
-      "score": -1
-    },
-    {
-      "id": 22,
-      "name": "wind",
-      "type": 0,
-      "score": -1
-    },
-    {
-      "id": 23,
-      "name": "wind",
-      "type": 0,
-      "score": -1
-    },
-    {
-      "id": 24,
-      "name": "wind",
-      "type": 0,
-      "score": -1
-    },
-    {
-      "id": 25,
-      "name": "earth",
-      "type": 0,
-      "score": -1
-    },
-    {
-      "id": 26,
-      "name": "earth",
-      "type": 0,
-      "score": -1
-    },
-    {
-      "id": 27,
-      "name": "earth",
-      "type": 0,
-      "score": -1
-    },
-    {
-      "id": 28,
-      "name": "space",
-      "type": 0,
-      "score": -1
-    },
-    {
-      "id": 29,
-      "name": "space",
-      "type": 0,
-      "score": -1
-    },
-    {
-      "id": 30,
-      "name": "space",
-      "type": 0,
-      "score": -1
-    },
-    {
-      "id": 31,
-      "name": "star",
-      "type": 1,
-      "score": 5
-    },
-    {
-      "id": 32,
-      "name": "star",
-      "type": 1,
-      "score": 5
-    },
-    {
-      "id": 33,
-      "name": "star",
-      "type": 1,
-      "score": 5
-    },
-    {
       "id": 34,
-      "name": "star",
+      "name": "diamond_9",
       "type": 1,
-      "score": 5
+      "score": 9
     },
     {
       "id": 35,
-      "name": "star",
+      "name": "spade_9",
       "type": 1,
+      "score": 9
+    },
+    {
+      "id": 36,
+      "name": "club_9",
+      "type": 1,
+      "score": 9
+    },
+    {
+      "id": 37,
+      "name": "heart_x",
+      "type": 1,
+      "score": 10
+    },
+    {
+      "id": 38,
+      "name": "diamond_x",
+      "type": 1,
+      "score": 10
+    },
+    {
+      "id": 39,
+      "name": "spade_x",
+      "type": 1,
+      "score": 10
+    },
+    {
+      "id": 40,
+      "name": "club_x",
+      "type": 1,
+      "score": 10
+    },
+    {
+      "id": 41,
+      "name": "heart_j",
+      "type": 0,
+      "score": -1
+    },
+    {
+      "id": 42,
+      "name": "diamond_j",
+      "type": 0,
+      "score": -1
+    },
+    {
+      "id": 43,
+      "name": "spade_j",
+      "type": 0,
+      "score": -1
+    },
+    {
+      "id": 44,
+      "name": "club_j",
+      "type": 0,
+      "score": -1
+    },
+    {
+      "id": 45,
+      "name": "heart_q",
+      "type": 0,
+      "score": -1
+    },
+    {
+      "id": 46,
+      "name": "diamond_q",
+      "type": 0,
+      "score": -1
+    },
+    {
+      "id": 47,
+      "name": "spade_q",
+      "type": 0,
+      "score": -1
+    },
+    {
+      "id": 48,
+      "name": "club_q",
+      "type": 0,
+      "score": -1
+    },
+    {
+      "id": 49,
+      "name": "heart_k",
+      "type": 0,
+      "score": -1
+    },
+    {
+      "id": 50,
+      "name": "diamond_k",
+      "type": 0,
+      "score": -1
+    },
+    {
+      "id": 51,
+      "name": "spade_k",
+      "type": 0,
+      "score": -1
+    },
+    {
+      "id": 52,
+      "name": "club_k",
+      "type": 0,
+      "score": -1
+    },
+    {
+      "id": 53,
+      "name": "joker",
+      "type": 2,
+      "score": 5
+    },
+    {
+      "id": 54,
+      "name": "joker",
+      "type": 2,
+      "score": 5
+    },
+    {
+      "id": 55,
+      "name": "joker",
+      "type": 2,
+      "score": 5
+    },
+    {
+      "id": 56,
+      "name": "joker",
+      "type": 2,
+      "score": 5
+    },
+    {
+      "id": 57,
+      "name": "joker",
+      "type": 2,
       "score": 5
     }
   ]
